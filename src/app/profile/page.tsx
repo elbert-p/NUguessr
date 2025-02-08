@@ -13,7 +13,6 @@ export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [username, setUsername] = useState("NUExplorer")
 
-  // Mock leaderboard data
   const leaderboardData = [
     { rank: 1, username: "Kanghosaeyo", score: 2500 },
     { rank: 2, username: "Philyshark7", score: 2350 },
@@ -24,10 +23,8 @@ export default function ProfilePage() {
 
   return (
     <div className="h-screen flex flex-col bg-white">
-      {/* Main Content Area - 80vh */}
       <div className="h-[80vh] container px-4 py-6">
         <div className="grid h-full gap-6 md:grid-cols-[1fr_2fr]">
-          {/* Profile Section */}
           <div>
             <Card className="h-full shadow-lg">
               <CardContent className="h-full flex flex-col items-center justify-center gap-6 p-6">
