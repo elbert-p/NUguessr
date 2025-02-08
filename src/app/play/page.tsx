@@ -9,11 +9,14 @@ export default function PlayPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="w-full bg-[#D41B2C] p-4 text-center shadow-md">
+      <Link
+      href = "/"
+        className="w-full bg-[#D41B2C] p-4 text-center shadow-md">
         <h1 className="text-4xl font-bold text-white">
           NUGuessr
         </h1>
-      </header>
+
+      </Link>
 
       {/* Main content */}
       <main className="flex-grow flex flex-col items-center justify-center p-8 w-full">
