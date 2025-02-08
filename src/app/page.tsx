@@ -30,7 +30,7 @@ export default function HomePage() {
           <div>
           <Link
             href="/play"
-            className="inline-block mb-8 bg-red-600 hover:bg-red-700 py-8 px-20 rounded-full text-2xl shadow-lg transition-all hover:scale-105"
+            className="text-white  inline-block mb-8 bg-red-600 hover:bg-red-700 py-4 px-20 rounded-full text-2xl shadow-lg transition-all hover:scale-105"
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
           >
             <span className="text-white-300 text-3xl font-[Open_Sans] transition-colors hover:text-red-100">
