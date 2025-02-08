@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import { Icon } from "leaflet"
+import { Icon } from "leaflet" 
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 
