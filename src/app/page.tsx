@@ -28,8 +28,14 @@ export default function HomePage() {
             Want to familiarize yourself with the campus?
           </p>
         </div>
-        <Button className="mb-8 bg-red-600 hover:bg-red-700 text-white font-[Open_Sans] py-8 px-10 rounded-full text-2xl shadow-lg transition-all hover:scale-105">
-          Sign up to play now!
+        <Button className="mb-8 bg-red-600 hover:bg-red-700  py-8 px-20 rounded-full text-2xl shadow-lg transition-all hover:scale-105">
+        <Link
+            href="/play"
+            className="text-white-300 text-3xl font-[Open_Sans] transition-colors hover:text-red-100"
+            style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
+          >
+            Play now!
+          </Link>
         </Button>
         <div>
           <Link
