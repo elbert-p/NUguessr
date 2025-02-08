@@ -10,7 +10,6 @@ import '@fontsource/titillium-web';
 import "leaflet/dist/leaflet.css";
 import { createClient } from "@/lib/supabase/client";
 
-// Define your Supabase project details and helper function
 const SUPABASE_PROJECT_ID = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_STORAGE_BUCKET = "images";
 
@@ -20,11 +19,10 @@ const getSupabaseImageUrl = (path) => {
     console.error("Supabase URL is missing!");
     return "/placeholder.svg";
   }
-  const baseUrl = SUPABASE_PROJECT_ID.replace(/\/$/, ""); // Remove trailing slash if any
+  const baseUrl = SUPABASE_PROJECT_ID.replace(/\/$/, "");
   return `${baseUrl}/storage/v1/object/public/${SUPABASE_STORAGE_BUCKET}/${path}`;
 };
 
-// Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(
   () => import("react-leaflet").then(mod => mod.MapContainer),
   { ssr: false }
@@ -128,7 +126,7 @@ export default function PlayPage() {
 
         {/* Map & Guess Button Container */}
         <div 
-          className={`absolute bottom-8 right-8 rounded-lg overflow-hidden shadow-xl border border-gray-200 transition-all duration-300 ${
+          className={`absolute bottom-0 right-8 rounded-lg overflow-hidden shadow-xl border border-gray-200 transition-all duration-300 ${
             isExpanded ? 'w-[50%] h-[50vh]' : 'w-[200px] h-[150px]'
           }`}
           onMouseEnter={() => setIsExpanded(true)}
