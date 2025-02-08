@@ -5,7 +5,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { MapPin, Edit2, Save, Camera, BarChartIcon as ChartBar, GamepadIcon, Star, BarChart2 } from "lucide-react"
+import {
+  MapPin,
+  Edit2,
+  Save,
+  Camera,
+  BarChartIcon as ChartBar,
+  GamepadIcon,
+  Star,
+  BarChart2,
+  Trophy,
+} from "lucide-react"
+import { Progress } from "@/components/ui/progress"
 
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
@@ -43,12 +54,12 @@ export default function ProfilePage() {
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Main Content Area - 80vh */}
-      <div className="h-[80vh] container px-4 py-6">
-        <div className="grid h-full gap-6 md:grid-cols-[1fr_2fr]">
+      <div className="h-[80vh] container px-4 py-4">
+        <div className="grid h-full gap-4 md:grid-cols-[1fr_2fr] md:grid-rows-[1fr_auto_auto]">
           {/* Profile Section */}
           <div>
             <Card className="h-full shadow-lg">
-              <CardContent className="h-full flex flex-col items-center justify-center gap-6 p-6">
+              <CardContent className="h-full flex flex-col items-center justify-center gap-4 p-4">
                 <div className="relative">
                   <Avatar
                     className="h-28 w-28 border-4 border-primary cursor-pointer transition-transform hover:scale-105"
@@ -113,63 +124,82 @@ export default function ProfilePage() {
           </div>
 
           {/* Stats Section */}
-          <Card className="h-full shadow-lg">
-            <CardHeader className="pb-2 pt-4">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <ChartBar className="h-5 w-5 text-primary" />
-                Stats
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col justify-center h-[calc(100%-4rem)] gap-8">
-              <div className="grid grid-cols-1 gap-6">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-primary/10">
-                      <GamepadIcon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Games Played</p>
-                      <p className="text-2xl font-bold text-primary">24</p>
+          <div className="flex flex-col gap-4">
+            <Card className="shadow-lg">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <ChartBar className="h-5 w-5 text-primary" />
+                  Stats
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col justify-between h-[calc(100%-4rem)] p-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <GamepadIcon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Games Played</p>
+                        <p className="text-2xl font-bold text-primary">24</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-primary/10">
-                      <Star className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Score</p>
-                      <p className="text-2xl font-bold text-primary">1,250</p>
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <Star className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Total Score</p>
+                        <p className="text-2xl font-bold text-primary">1,250</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-primary/10">
-                      <BarChart2 className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Average Score</p>
-                      <p className="text-2xl font-bold text-primary">52</p>
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-primary/10">
+                        <BarChart2 className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Average Score</p>
+                        <p className="text-2xl font-bold text-primary">52</p>
+                      </div>
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Leaderboards Button */}
+            <Button
+              variant="outline"
+              className="h-14 text-xl font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+            >
+              <Trophy className="mr-2 h-5 w-5" /> Leaderboards
+            </Button>
+
+            {/* Progress Indicator - Moved here */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">% of NEU Landmarks Discovered</span>
+                <span className="font-medium text-primary">75%</span>
               </div>
-            </CardContent>
-          </Card>
+              <Progress value={75} className="h-2" />
+            </div>
+          </div>
+
+          {/* Play Button - 20vh */}
+          <Button className="h-[20vh] w-full col-span-2 rounded-none text-3xl font-bold shadow-lg bg-primary hover:bg-primary/90 transition-colors text-white">
+            <div className="flex items-center justify-center gap-4">
+              <MapPin className="h-10 w-10" />
+              Play!
+            </div>
+          </Button>
         </div>
       </div>
-
-      {/* Play Button - 20vh */}
-      <Button className="h-[20vh] w-full rounded-none text-3xl font-bold shadow-lg bg-primary hover:bg-primary/90 transition-colors text-white">
-        <div className="flex items-center justify-center gap-4">
-          <MapPin className="h-10 w-10" />
-          Play!
-        </div>
-      </Button>
     </div>
   )
 }
