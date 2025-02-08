@@ -16,7 +16,7 @@ import exifr from "exifr"; // EXIF extraction library
 const SUPABASE_PROJECT_ID = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_STORAGE_BUCKET = "images";
 
-const getSupabaseImageUrl = (path) => {
+const getSupabaseImageUrl = (path: string) => {
   if (!path) return "/placeholder.svg";
   if (!SUPABASE_PROJECT_ID) {
     console.error("Supabase URL is missing!");
@@ -53,7 +53,7 @@ import { useMap, useMapEvent } from "react-leaflet";
 // ---------------------
 
 // This component ensures that the Leaflet map properly resizes when the container dimensions change.
-function MapResizeHandler({ trigger }) {
+function MapResizeHandler({ trigger }: { trigger: any }) {
   const map = useMap();
   useEffect(() => {
     setTimeout(() => {
@@ -64,7 +64,7 @@ function MapResizeHandler({ trigger }) {
 }
 
 // This component listens for map clicks and updates the marker position.
-function MapClickHandler({ setMarkerPosition }) {
+function MapClickHandler({ setMarkerPosition }: { setMarkerPosition: (position: any) => void }) {
   useMapEvent("click", (e) => {
     setMarkerPosition(e.latlng);
   });
@@ -78,15 +78,15 @@ function MapClickHandler({ setMarkerPosition }) {
 export default function PlayPage() {
   // State variables for managing images, current image index, marker position, EXIF data, and view state.
   const [isExpanded, setIsExpanded] = useState(false);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<any[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [markerPosition, setMarkerPosition] = useState(null);
+  const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [showResult, setShowResult] = useState(false);
 
   // States for EXIF extraction:
   // exifCoords will hold [latitude, longitude] once extracted (or remain null on failure)
   // exifLoading indicates that EXIF data is being fetched.
-  const [exifCoords, setExifCoords] = useState(null);
+  const [exifCoords, setExifCoords] = useState<[number, number] | null>(null);
   const [exifLoading, setExifLoading] = useState(false);
 
   // Create a ref for the map container element.
@@ -94,8 +94,8 @@ export default function PlayPage() {
 
   // Collapse the map if the user clicks outside the map container.
   useEffect(() => {
-    function handleMouseDown(event) {
-      if (mapContainerRef.current && !mapContainerRef.current.contains(event.target)) {
+    function handleMouseDown(event: MouseEvent) {
+      if (mapContainerRef.current && !(mapContainerRef.current as HTMLElement).contains(event.target)) {
         setIsExpanded(false);
       }
     }
@@ -172,7 +172,7 @@ export default function PlayPage() {
   // If the user has made a guess (and a marker has been set) and the current image's EXIF data is available,
   // render the MapResult component.
   if (showResult && markerPosition && exifCoords) {
-    const guessCoords = [markerPosition.lat, markerPosition.lng];
+    const guessCoords: [number, number] = [markerPosition.lat, markerPosition.lng];
     // exifCoords holds the actual coordinates extracted from the image.
     return (
       <MapResult
