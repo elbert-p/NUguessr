@@ -20,11 +20,11 @@ import { SignOutButton } from "@/components/signout-button"
 import '@fontsource/titillium-web'
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-
+import { useEffect } from "react"
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const { user } = useUser()
-  const [username, setUsername] = useState("NUExplorer")
+  const [username, setUsername] = useState(user?.user_metadata.name || "")
   const [profImage, setProfileImage] = useState<string>("/placeholder.svg?height=112&width=112")
   //const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
@@ -36,6 +36,12 @@ export default function ProfilePage() {
   const navigatePlay = () => {
     router.push("/play/1")
   }
+
+  useEffect(() => {
+    if (user?.user_metadata.name) {
+      setUsername(user.user_metadata.name);
+    }
+  }, [user]);
 
 
   /*const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +101,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-primary">{user?.user_metadata.name}</span>
+                  <span className="text-xl font-bold text-primary">{username}</span>
                   <Button
                     size="icon"
                     variant="ghost"
