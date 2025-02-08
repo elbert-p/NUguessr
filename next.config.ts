@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+const fs = require("fs-extra");
+const path = require("path");
 
-export default nextConfig;
+const leafletImages = path.join(__dirname, "node_modules/leaflet/dist/images");
+const publicImages = path.join(__dirname, "public");
+
+fs.copySync(leafletImages, publicImages);
+
+module.exports = {
+  reactStrictMode: true,
+};
