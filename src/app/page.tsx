@@ -14,7 +14,15 @@ export default function HomePage() {
       backgroundSize: "cover",
       backgroundPosition: "center",
       }}
+      
     >
+           <div className="absolute top-4 right-4">
+        <Link href="/profile">
+          <Button className="text-white items-center bg-red-600 hover:bg-red-700 py-7 px-9 rounded-full text-2xl shadow-lg transition-all hover:scale-105">
+            Profile
+          </Button>
+        </Link>
+      </div>
       <div className="w-full flex flex-col items-center pt-4 md:pt-8">
         <Image src="/logo.png" alt="NUGuessr Logo" width={300} height={500} className="mx-auto" priority />
       </div>
