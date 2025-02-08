@@ -9,9 +9,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { SignInButton } from "./signin-button"
+//import { SignInButton } from "./signin-button"
 import { SignOutButton } from "./signout-button"
  
+/*
 export async function UserAccountNav() {
   const supabase = await createClient()
   const {
@@ -48,4 +49,4 @@ export async function UserAccountNav() {
       </DropdownMenu>
     </div>
   )
-}
+} */
