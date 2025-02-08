@@ -72,7 +72,7 @@ export default function LeaderboardsPage() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="w-full bg-[#D41B2C] p-4 text-center shadow-md">
-        <h1 className="text-4xl font-bold text-white">Leaderboards</h1>
+        <h1 className="text-4xl font-bold text-white">All-Time Leaderboards</h1>
       </header>
 
       <main className="container mx-auto px-4 py-8">
