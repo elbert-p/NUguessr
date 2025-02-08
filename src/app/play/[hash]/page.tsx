@@ -28,6 +28,7 @@ const SUPABASE_PROJECT_ID = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_STORAGE_BUCKET = "images";
 
 const getSupabaseImageUrl = (path: string) => {
+const getSupabaseImageUrl = (path: string) => {
   if (!path) return "/placeholder.svg";
   if (!SUPABASE_PROJECT_ID) {
     console.error("Supabase URL is missing!");
