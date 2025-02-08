@@ -1,46 +1,78 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import '@fontsource/titillium-web'
-import { SignOutButton } from "@/components/signout-button"
-
-import { MapPin, Trophy, Edit2, Save, Camera } from "lucide-react"
+import { MapPin, Edit2, Save, Camera, BarChartIcon as ChartBar, GamepadIcon, Star, BarChart2 } from "lucide-react"
 
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [username, setUsername] = useState("NUExplorer")
+  const [profileImage, setProfileImage] = useState<string>("/placeholder.svg?height=112&width=112")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const leaderboardData = [
-    { rank: 1, username: "Kanghosaeyo", score: 2500 },
-    { rank: 2, username: "Philyshark7", score: 2350 },
-    { rank: 3, username: "Joshuaa_chann", score: 2200 },
-    { rank: 4, username: "Alantai26", score: 2100 },
-    { rank: 5, username: "Joldemorts", score: -10 },
-  ]
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        alert("Please upload an image file")
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size should be less than 5MB")
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
 
   return (
     <div className="h-screen flex flex-col bg-white">
+      {/* Main Content Area - 80vh */}
       <div className="h-[80vh] container px-4 py-6">
         <div className="grid h-full gap-6 md:grid-cols-[1fr_2fr]">
+          {/* Profile Section */}
           <div>
             <Card className="h-full shadow-lg">
               <CardContent className="h-full flex flex-col items-center justify-center gap-6 p-6">
                 <div className="relative">
-                  <Avatar className="h-28 w-28 border-4 border-primary">
-                    <AvatarImage src="/placeholder.svg?height=112&width=112" alt="Profile picture" />
+                  <Avatar
+                    className="h-28 w-28 border-4 border-primary cursor-pointer transition-transform hover:scale-105"
+                    onClick={handleAvatarClick}
+                  >
+                    <AvatarImage src={profileImage} alt="Profile picture" />
                     <AvatarFallback className="text-3xl bg-primary text-white">NU</AvatarFallback>
                   </Avatar>
                   <Button
                     size="icon"
                     className="absolute bottom-0 right-0 rounded-full bg-primary hover:bg-primary/90 text-white"
                     aria-label="Change profile picture"
+                    onClick={handleAvatarClick}
                   >
                     <Camera className="h-4 w-4" />
                   </Button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    aria-label="Upload profile picture"
+                  />
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -75,46 +107,56 @@ export default function ProfilePage() {
                       </Button>
                     </div>
                   )}
-                  <SignOutButton />
                 </div>
               </CardContent>
             </Card>
-            
           </div>
 
-          {/* Leaderboard Section */}
+          {/* Stats Section */}
           <Card className="h-full shadow-lg">
             <CardHeader className="pb-2 pt-4">
               <CardTitle className="flex items-center gap-2 text-xl">
-                <Trophy className="h-5 w-5 text-primary" />
-                Leaderboard
+                <ChartBar className="h-5 w-5 text-primary" />
+                Stats
               </CardTitle>
             </CardHeader>
-            <CardContent className="overflow-auto">
-              <div className="space-y-2">
-                {leaderboardData.map((entry) => (
-                  <div
-                    key={entry.rank}
-                    className={`flex items-center justify-between rounded-lg p-3 transition-colors ${
-                      entry.username === username ? "bg-primary/10" : "hover:bg-gray-50"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`flex h-8 w-8 items-center justify-center rounded-full font-bold text-white
-                          ${entry.rank === 1 ? "bg-primary" : ""}
-                          ${entry.rank === 2 ? "bg-primary/80" : ""}
-                          ${entry.rank === 3 ? "bg-primary/60" : ""}
-                          ${entry.rank > 3 ? "bg-primary/40" : ""}
-                        `}
-                      >
-                        {entry.rank}
-                      </span>
-                      <span className="font-semibold">{entry.username}</span>
+            <CardContent className="flex flex-col justify-center h-[calc(100%-4rem)] gap-8">
+              <div className="grid grid-cols-1 gap-6">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-primary/10">
+                      <GamepadIcon className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="font-mono font-bold text-primary">{entry.score}</span>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Games Played</p>
+                      <p className="text-2xl font-bold text-primary">24</p>
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-primary/10">
+                      <Star className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Score</p>
+                      <p className="text-2xl font-bold text-primary">1,250</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-primary/10">
+                      <BarChart2 className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Average Score</p>
+                      <p className="text-2xl font-bold text-primary">52</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
