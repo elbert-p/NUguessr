@@ -1,14 +1,25 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import L from "leaflet";
+// Fix the default marker icon issue in Leaflet:
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+});
+
+import { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import '@fontsource/titillium-web';
+import "@fontsource/titillium-web";
 import "leaflet/dist/leaflet.css";
 import { createClient } from "@/lib/supabase/client";
 import MapResult from "./../../../components/map-result"; // adjust path as needed
 import exifr from "exifr"; // EXIF extraction library
+import { useParams } from "next/navigation";
 
 // ---------------------
 // Supabase & Image Helpers
@@ -16,7 +27,7 @@ import exifr from "exifr"; // EXIF extraction library
 const SUPABASE_PROJECT_ID = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_STORAGE_BUCKET = "images";
 
-const getSupabaseImageUrl = (path) => {
+const getSupabaseImageUrl = (path: string) => {
   if (!path) return "/placeholder.svg";
   if (!SUPABASE_PROJECT_ID) {
     console.error("Supabase URL is missing!");
@@ -53,7 +64,7 @@ import { useMap, useMapEvent } from "react-leaflet";
 // ---------------------
 
 // This component ensures that the Leaflet map properly resizes when the container dimensions change.
-function MapResizeHandler({ trigger }) {
+function MapResizeHandler({ trigger }: { trigger: boolean }) {
   const map = useMap();
   useEffect(() => {
     setTimeout(() => {
@@ -64,7 +75,11 @@ function MapResizeHandler({ trigger }) {
 }
 
 // This component listens for map clicks and updates the marker position.
-function MapClickHandler({ setMarkerPosition }) {
+function MapClickHandler({
+  setMarkerPosition,
+}: {
+  setMarkerPosition: (latlng: L.LatLng) => void;
+}) {
   useMapEvent("click", (e) => {
     setMarkerPosition(e.latlng);
   });
@@ -76,26 +91,44 @@ function MapClickHandler({ setMarkerPosition }) {
 // ---------------------
 
 export default function PlayPage() {
-  // State variables for managing images, current image index, marker position, EXIF data, and view state.
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [images, setImages] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [markerPosition, setMarkerPosition] = useState(null);
-  const [showResult, setShowResult] = useState(false);
+  // IMPORTANT: The dynamic segment key here must match your folder name.
+  // For example, if your file is at `/app/play/[id]/page.tsx`, then use "id" below.
+  // If it's named [ids], then you must use:
+  // const { ids } = useParams();
+  const params = useParams();
+  console.log("Route params:", params);
+  
+  const id = params?.hash;
+  console.log("Dynamic parameter id:", id);
 
-  // States for EXIF extraction:
-  // exifCoords will hold [latitude, longitude] once extracted (or remain null on failure)
-  // exifLoading indicates that EXIF data is being fetched.
-  const [exifCoords, setExifCoords] = useState(null);
+  // Parse the id string into an array of numbers.
+  const idArray: number[] = useMemo(() => {
+    if (!id) return [];
+    console.log("Raw id:", id);
+    const arr = id.split("-").map((idStr) => parseInt(idStr, 10));
+    console.log("Parsed idArray:", arr);
+    return arr;
+  }, [id]);
+
+  // State variables for managing images, current image index, marker position, EXIF data, and view state.
+  const [images, setImages] = useState<any[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [markerPosition, setMarkerPosition] = useState<L.LatLng | null>(null);
+  const [showResult, setShowResult] = useState(false);
+  const [exifCoords, setExifCoords] = useState<[number, number] | null>(null);
   const [exifLoading, setExifLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Create a ref for the map container element.
-  const mapContainerRef = useRef(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   // Collapse the map if the user clicks outside the map container.
   useEffect(() => {
-    function handleMouseDown(event) {
-      if (mapContainerRef.current && !mapContainerRef.current.contains(event.target)) {
+    function handleMouseDown(event: MouseEvent) {
+      if (
+        mapContainerRef.current &&
+        !mapContainerRef.current.contains(event.target as Node)
+      ) {
         setIsExpanded(false);
       }
     }
@@ -105,19 +138,27 @@ export default function PlayPage() {
     };
   }, []);
 
-  // Fetch images from Supabase.
+  // Fetch images from Supabase using the ids provided in the URL.
   useEffect(() => {
     async function fetchImages() {
+      if (idArray.length === 0) return;
       const supabaseClient = createClient();
-      const { data, error } = await supabaseClient.from("places").select("*");
+      const { data, error } = await supabaseClient
+        .from("places")
+        .select("*")
+        .in("id", idArray);
+      console.log("ID Array used for query:", idArray);
       if (error) {
         console.error("Error fetching images:", error);
-      } else {
+      } else if (data) {
+        // Sort the images in the order provided by the URL
+        data.sort((a: any, b: any) => idArray.indexOf(a.id) - idArray.indexOf(b.id));
+        console.log("Fetched images:", data);
         setImages(data);
       }
     }
     fetchImages();
-  }, []);
+  }, [idArray]);
 
   // When images are loaded, start with the first one.
   useEffect(() => {
@@ -154,7 +195,6 @@ export default function PlayPage() {
 
   // Handler for when the user clicks the "Guess" button.
   const handleGuess = () => {
-    // Proceed only if a marker is placed and EXIF data is available.
     if (markerPosition && exifCoords) {
       setIsExpanded(false); // Collapse the map
       setShowResult(true);
@@ -163,17 +203,20 @@ export default function PlayPage() {
 
   // Handler for moving to the next round.
   const handleNextRound = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    setMarkerPosition(null);
-    setShowResult(false);
-    // (EXIF extraction for the new image will run via useEffect)
+    if (currentImageIndex < images.length - 1) {
+      setCurrentImageIndex((prevIndex) => prevIndex + 1);
+      setMarkerPosition(null);
+      setShowResult(false);
+    } else {
+      // All rounds completed. You can add any completion logic here.
+      console.log("Game completed!");
+    }
   };
 
-  // If the user has made a guess (and a marker has been set) and the current image's EXIF data is available,
+  // If the user has made a guess and the current image's EXIF data is available,
   // render the MapResult component.
   if (showResult && markerPosition && exifCoords) {
     const guessCoords = [markerPosition.lat, markerPosition.lng];
-    // exifCoords holds the actual coordinates extracted from the image.
     return (
       <MapResult
         guessCoords={guessCoords}
@@ -184,17 +227,16 @@ export default function PlayPage() {
     );
   }
 
-  // Determine whether the Guess button should be enabled:
-  // It is enabled when the map is expanded, a marker is placed, EXIF extraction is complete,
-  // and valid EXIF coordinates are available.
-  const canGuess = isExpanded && markerPosition && !exifLoading && exifCoords !== null;
+  // Determine whether the Guess button should be enabled.
+  const canGuess =
+    isExpanded && markerPosition && !exifLoading && exifCoords !== null;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Main Content */}
       <main className="h-[80vh] grid place-items-center p-10 relative">
         {images.length > 0 ? (
-          // Display the current image inside a card.
+          // Display the current image (for example, image with id 1 first)
           <Card className="w-full shadow-xl">
             <CardContent className="p-10">
               <div className="relative w-full h-[70vh]">
@@ -233,9 +275,7 @@ export default function PlayPage() {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
                 />
-                {/* Handle map clicks */}
                 <MapClickHandler setMarkerPosition={setMarkerPosition} />
-                {/* Render marker if one exists */}
                 {markerPosition && (
                   <Marker position={markerPosition}>
                     <Popup>
@@ -251,7 +291,6 @@ export default function PlayPage() {
             <button
               onClick={handleGuess}
               disabled={!canGuess}
-              
               className={`w-full px-6 py-2 rounded-lg shadow-md transition ${
                 canGuess
                   ? "bg-[#D41B2C] text-white hover:bg-[#b31724] cursor-pointer"

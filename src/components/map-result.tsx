@@ -72,7 +72,7 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
           />
           <Marker position={guessCoords} icon={customIcon} />
           <Marker position={actualCoords} icon={customIcon} />
-          <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#ffffff" />
+          <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#000000" />
         </MapContainer>
       </div>
 
@@ -84,14 +84,14 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
 
       <div className="text-lg italic text-gray-300">
         Your guess was <span className="font-bold">{distance} miles</span> from the correct location.
-      </div>
+          </div>
+          <Button
+      onClick={onNextRound}
+      className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+    >
+      {round === 5 ? "VIEW RESULTS" : "START NEXT ROUND"}
+    </Button>
 
-      <Button
-        onClick={onNextRound}
-        className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
-      >
-        START NEXT ROUND
-      </Button>
     </div>
   )
 }
