@@ -1,12 +1,14 @@
+"use client";
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import "@fontsource/open-sans"
 import '@fontsource/titillium-web'
-import { login, signup } from './actions'
-import { UserAccountNav } from "@/components/user-account-nav"
+import { useUser } from "../../hooks/use-user"
 
 export default function HomePage() {
+  const { user } = useUser()
   return (
     <div
       className="min-h-screen w-full flex flex-col items-center bg-no-repeat bg-fixed"
@@ -18,10 +20,10 @@ export default function HomePage() {
       }}
       
     >
-           <div className="absolute top-4 right-4">
-        <Link href="/profile">
+      <div className="absolute top-4 right-4">
+        <Link href={user?.email ? "/profile" : "/signin"}>
           <Button className="text-white items-center bg-red-600 hover:bg-red-700 py-7 px-9 rounded-full text-2xl shadow-lg transition-all hover:scale-105">
-            Profile
+          {user?.email ? "Profile" : "Sign up or Log in"}
           </Button>
         </Link>
       </div>
@@ -31,7 +33,6 @@ export default function HomePage() {
 
       <main className="text-center z-10 relative px-6 py-8 w-full max-w-4xl mx-auto mt-4 bg-gray-800/60 rounded-xl backdrop-blur-[2px]">
         <div className="space-y-4 mb-8">
-        <UserAccountNav />
           <p className=" text-5xl font-[1000] text-white" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
             Think you know your school well?
           </p>
@@ -45,17 +46,10 @@ export default function HomePage() {
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
           >
             <span className="text-white-300 text-3xl font-[Open_Sans] transition-colors hover:text-red-100">
-              Play now!
+              Try your luck!
             </span>
           </Link>
         </div>
-          <Link
-            href="/play"
-            className="text-gray-300 text-xl font-[Open_Sans] transition-colors hover:text-red-100"
-            style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
-          >
-            Continue as a guest
-          </Link>
         </div>
       </main>
     </div>
