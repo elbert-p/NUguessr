@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import '@fontsource/titillium-web'
+import { SignOutButton } from "@/components/signout-button"
 
 import { MapPin, Trophy, Edit2, Save, Camera } from "lucide-react"
 
@@ -74,9 +75,11 @@ export default function ProfilePage() {
                       </Button>
                     </div>
                   )}
+                  <SignOutButton />
                 </div>
               </CardContent>
             </Card>
+            
           </div>
 
           {/* Leaderboard Section */}

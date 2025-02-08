@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
  
-import { getUserRole } from "@/lib/get-user-role"
+import { getUserRole } from "./../get-user-role"
  
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
