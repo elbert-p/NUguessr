@@ -3,19 +3,18 @@
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { MapPin, Edit2, Save, BarChartIcon as ChartBar, GamepadIcon, Star, BarChart2 } from "lucide-react"
-import { useUser } from "../../../hooks/use-user"
+import { MapPin, Edit2, Save, Camera, BarChartIcon as ChartBar, GamepadIcon, Star, BarChart2 } from "lucide-react"
 
 
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [username, setUsername] = useState("NUExplorer")
-  const [profImage, setProfileImage] = useState<string>("/placeholder.svg?height=112&width=112")
+  const [profileImage, setProfileImage] = useState<string>("/placeholder.svg?height=112&width=112")
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { user } = useUser()
 
-  /*const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       // Validate file type
@@ -40,7 +39,7 @@ export default function ProfilePage() {
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
-  }*/
+  }
 
   return (
     <div className="h-screen flex flex-col bg-white">
@@ -52,16 +51,27 @@ export default function ProfilePage() {
             <Card className="h-full shadow-lg">
               <CardContent className="h-full flex flex-col items-center justify-center gap-6 p-6">
                 <div className="relative">
-                    {profImage ? (
-                      <img src={user?.user_metadata.avatar_url} alt="Profile picture" className="h-full w-full rounded-full object-cover" />
-                    ) : (
-                      <span className="text-3xl text-gray-500"></span>
-                    )}
+                  <Avatar
+                    className="h-28 w-28 border-4 border-primary cursor-pointer transition-transform hover:scale-105"
+                    onClick={handleAvatarClick}
+                  >
+                    <AvatarImage src={profileImage} alt="Profile picture" />
+                    <AvatarFallback className="text-3xl bg-primary text-white">NU</AvatarFallback>
+                  </Avatar>
+                  <Button
+                    size="icon"
+                    className="absolute bottom-0 right-0 rounded-full bg-primary hover:bg-primary/90 text-white"
+                    aria-label="Change profile picture"
+                    onClick={handleAvatarClick}
+                  >
+                    <Camera className="h-4 w-4" />
+                  </Button>
                   <input
                     type="file"
                     ref={fileInputRef}
                     className="hidden"
                     accept="image/*"
+                    onChange={handleImageUpload}
                     aria-label="Upload profile picture"
                   />
                 </div>
