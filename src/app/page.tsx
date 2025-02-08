@@ -27,17 +27,17 @@ export default function HomePage() {
           <p className="text-4xl font-[1000] text-white" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
             Want to familiarize yourself with the campus?
           </p>
-        </div>
-        <Button className="mb-8 bg-red-600 hover:bg-red-700  py-8 px-20 rounded-full text-2xl shadow-lg transition-all hover:scale-105">
-        <Link
+          <div>
+          <Link
             href="/play"
-            className="text-white-300 text-3xl font-[Open_Sans] transition-colors hover:text-red-100"
+            className="inline-block mb-8 bg-red-600 hover:bg-red-700 py-8 px-20 rounded-full text-2xl shadow-lg transition-all hover:scale-105"
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
           >
-            Play now!
+            <span className="text-white-300 text-3xl font-[Open_Sans] transition-colors hover:text-red-100">
+              Play now!
+            </span>
           </Link>
-        </Button>
-        <div>
+        </div>
           <Link
             href="/play"
             className="text-gray-300 text-xl font-[Open_Sans] transition-colors hover:text-red-100"
