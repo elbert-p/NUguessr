@@ -3,6 +3,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import "@fontsource/open-sans"
 import '@fontsource/titillium-web'
+import { login, signup } from './actions'
 
 export default function HomePage() {
   return (
@@ -42,6 +43,14 @@ export default function HomePage() {
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
           >
             <span className="text-white-300 text-3xl font-[Open_Sans] transition-colors hover:text-red-100">
+            <form>
+      <label htmlFor="email">Email:</label>
+      <input id="email" name="email" type="email" required />
+      <label htmlFor="password">Password:</label>
+      <input id="password" name="password" type="password" required />
+      <button formAction={login}>Log in</button>
+      <button formAction={signup}>Sign up</button>
+    </form>
               Play now!
             </span>
           </Link>
