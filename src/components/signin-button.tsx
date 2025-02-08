@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast"
 import { Icons } from "@/components/icons"
 import { useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import { profileImage } from "./profile-image"
  
 export function SignInButton() {
     const { user } = useUser()
@@ -47,23 +48,6 @@ export function SignInButton() {
       else {
         signInWithGoogle()
       }
-    }
-
-    const profileImage = () => {
-        if (user?.email) {
-            return (
-            <img
-                src={user?.user_metadata.avatar_url}
-                alt="Profile image"
-                className="w-8 h-8 mr-2 rounded-full"
-            />
-            )
-        }
-        else {
-            return (
-            <Icons.google className="mr-2 size-6" />
-            )
-        }
     }
 
     return (

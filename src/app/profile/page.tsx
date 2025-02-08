@@ -3,13 +3,11 @@
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import {
   MapPin,
   Edit2,
   Save,
-  Camera,
   BarChartIcon as ChartBar,
   GamepadIcon,
   Star,
@@ -17,14 +15,29 @@ import {
   Trophy,
 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import { useUser } from "../../../hooks/use-user"
+import { SignOutButton } from "@/components/signout-button"
+import '@fontsource/titillium-web'
+import { useRouter } from "next/navigation"
 
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const { user } = useUser()
   const [username, setUsername] = useState("NUExplorer")
-  const [profileImage, setProfileImage] = useState<string>("/placeholder.svg?height=112&width=112")
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [profImage, setProfileImage] = useState<string>("/placeholder.svg?height=112&width=112")
+  //const fileInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const navigateLeaderboard = () => {
+    router.push("/leaderboards")
+  }
+
+  const navigatePlay = () => {
+    router.push("/play/1")
+  }
+
+
+  /*const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       if (!file.type.startsWith("image/")) {
@@ -41,11 +54,7 @@ export default function ProfilePage() {
       }
       reader.readAsDataURL(file)
     }
-  }
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click()
-  }
+  }*/
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
@@ -56,31 +65,12 @@ export default function ProfilePage() {
             <Card className="h-full shadow-lg">
               <CardContent className="h-full flex flex-col items-center justify-center gap-4 p-4">
                 <div className="relative">
-                  <Avatar
-                    className="h-24 w-24 border-4 border-primary cursor-pointer transition-transform hover:scale-105"
-                    onClick={handleAvatarClick}
-                  >
-                    <AvatarImage src={profileImage} alt="Profile picture" />
-                    <AvatarFallback className="text-2xl bg-primary text-white">NU</AvatarFallback>
-                  </Avatar>
-                  <Button
-                    size="icon"
-                    className="absolute bottom-0 right-0 rounded-full bg-primary hover:bg-primary/90 text-white"
-                    aria-label="Change profile picture"
-                    onClick={handleAvatarClick}
-                  >
-                    <Camera className="h-4 w-4" />
-                  </Button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    aria-label="Upload profile picture"
-                  />
+                {profImage ? (
+                      <img src={user?.user_metadata.avatar_url} alt="Profile picture" className="h-full w-full rounded-full object-cover" />
+                    ) : (
+                      <span className="text-3xl text-gray-500"></span>
+                    )}
                 </div>
-
                 <div className="flex items-center gap-2">
                   {isEditingUsername ? (
                     <div className="flex items-center gap-2">
@@ -101,7 +91,7 @@ export default function ProfilePage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-primary">{username}</span>
+                      <span className="text-xl font-bold text-primary">{user?.user_metadata.name}</span>
                       <Button
                         size="icon"
                         variant="ghost"
@@ -114,6 +104,7 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
+                <SignOutButton/>
               </CardContent>
             </Card>
           </div>
@@ -173,6 +164,7 @@ export default function ProfilePage() {
               <Button
                 variant="outline"
                 className="w-full h-12 text-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors"
+                onClick = {navigateLeaderboard}
               >
                 <Trophy className="mr-2 h-5 w-5" /> Leaderboards
               </Button>
@@ -189,7 +181,9 @@ export default function ProfilePage() {
           </div>
 
           {/* Play Button */}
-          <Button className="h-16 w-full col-span-2 rounded-none text-2xl font-bold shadow-lg bg-primary hover:bg-primary/90 transition-colors text-white">
+          <Button 
+          className="h-16 w-full col-span-2 rounded-none text-2xl font-bold shadow-lg bg-primary hover:bg-primary/90 transition-colors text-white"
+          onClick = {navigatePlay}>
             <div className="flex items-center justify-center gap-4">
               <MapPin className="h-8 w-8" />
               Play!
