@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import "@fontsource/open-sans"
+import '@fontsource/titillium-web'
 
 export default function HomePage() {
   return (
@@ -20,20 +21,20 @@ export default function HomePage() {
 
       <main className="text-center z-10 relative px-6 py-8 w-full max-w-4xl mx-auto mt-4 bg-gray-800/60 rounded-xl backdrop-blur-[2px]">
         <div className="space-y-4 mb-12">
-          <p className="schedule-title text-5xl font-[Open_Sans] text-white" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
+          <p className=" text-5xl font-[1000] text-white" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
             Think you know your school well?
           </p>
-          <p className="text-4xl schedule-title text-white schedule-title" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
+          <p className="text-4xl font-[1000] text-white" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
             Want to familiarize yourself with the campus?
           </p>
         </div>
-        <Button className="mb-8 bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition-all hover:scale-105">
+        <Button className="mb-8 bg-red-600 hover:bg-red-700 text-white font-[Open_Sans] py-8 px-10 rounded-full text-2xl shadow-lg transition-all hover:scale-105">
           Sign up to play now!
         </Button>
         <div>
           <Link
             href="/play"
-            className="text-white text-xl font-semibold transition-colors hover:text-red-100"
+            className="text-gray-300 text-xl font-[Open_Sans] transition-colors hover:text-red-100"
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
           >
             Continue as a guest
