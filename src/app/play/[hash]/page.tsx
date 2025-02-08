@@ -3,13 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import '@fontsource/titillium-web';
 import "leaflet/dist/leaflet.css";
 import { createClient } from "@/lib/supabase/client";
+import MapResult from "./../../../components/map-result"; // adjust path as needed
+import exifr from "exifr"; // EXIF extraction library
 
-// Define your Supabase project details and helper function
+// ---------------------
+// Supabase & Image Helpers
+// ---------------------
 const SUPABASE_PROJECT_ID = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_STORAGE_BUCKET = "images";
 
@@ -19,11 +22,13 @@ const getSupabaseImageUrl = (path) => {
     console.error("Supabase URL is missing!");
     return "/placeholder.svg";
   }
-  const baseUrl = SUPABASE_PROJECT_ID.replace(/\/$/, ""); // Remove trailing slash if any
+  const baseUrl = SUPABASE_PROJECT_ID.replace(/\/$/, ""); // remove trailing slash if any
   return `${baseUrl}/storage/v1/object/public/${SUPABASE_STORAGE_BUCKET}/${path}`;
 };
 
-// Dynamically import map components to avoid SSR issues
+// ---------------------
+// Dynamically import Leaflet components to avoid SSR issues
+// ---------------------
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
@@ -43,18 +48,22 @@ const Popup = dynamic(
 
 import { useMap, useMapEvent } from "react-leaflet";
 
-// Helper component to invalidate the Leaflet map size after a container resize.
+// ---------------------
+// Helper Components for the Map
+// ---------------------
+
+// This component ensures that the Leaflet map properly resizes when the container dimensions change.
 function MapResizeHandler({ trigger }) {
   const map = useMap();
   useEffect(() => {
     setTimeout(() => {
       map.invalidateSize();
-    }, 300); // Delay to allow CSS transition to finish
+    }, 300); // allow time for CSS transition to complete
   }, [trigger, map]);
   return null;
 }
 
-// Component to handle map clicks and update the marker position
+// This component listens for map clicks and updates the marker position.
 function MapClickHandler({ setMarkerPosition }) {
   useMapEvent("click", (e) => {
     setMarkerPosition(e.latlng);
@@ -62,16 +71,28 @@ function MapClickHandler({ setMarkerPosition }) {
   return null;
 }
 
+// ---------------------
+// Main PlayPage Component
+// ---------------------
+
 export default function PlayPage() {
+  // State variables for managing images, current image index, marker position, EXIF data, and view state.
   const [isExpanded, setIsExpanded] = useState(false);
   const [images, setImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [markerPosition, setMarkerPosition] = useState(null);
+  const [showResult, setShowResult] = useState(false);
 
-  // Create a ref for the map container element
+  // States for EXIF extraction:
+  // exifCoords will hold [latitude, longitude] once extracted (or remain null on failure)
+  // exifLoading indicates that EXIF data is being fetched.
+  const [exifCoords, setExifCoords] = useState(null);
+  const [exifLoading, setExifLoading] = useState(false);
+
+  // Create a ref for the map container element.
   const mapContainerRef = useRef(null);
 
-  // Global mousedown listener to collapse the map when clicking outside
+  // Collapse the map if the user clicks outside the map container.
   useEffect(() => {
     function handleMouseDown(event) {
       if (mapContainerRef.current && !mapContainerRef.current.contains(event.target)) {
@@ -84,7 +105,7 @@ export default function PlayPage() {
     };
   }, []);
 
-  // Fetch images from Supabase using your client
+  // Fetch images from Supabase.
   useEffect(() => {
     async function fetchImages() {
       const supabaseClient = createClient();
@@ -98,19 +119,82 @@ export default function PlayPage() {
     fetchImages();
   }, []);
 
-  // Optional: Reset currentImageIndex when new images load
+  // When images are loaded, start with the first one.
   useEffect(() => {
     if (images.length > 0) {
       setCurrentImageIndex(0);
     }
   }, [images]);
 
+  // Extract EXIF data (specifically, the GPS coordinates) from the current image.
+  useEffect(() => {
+    async function extractExif() {
+      if (images.length > 0) {
+        setExifLoading(true);
+        const image = images[currentImageIndex];
+        const imageUrl = getSupabaseImageUrl(image.image_url);
+        try {
+          // exifr.gps returns an object with latitude and longitude (if available).
+          const gpsData = await exifr.gps(imageUrl);
+          if (gpsData && gpsData.latitude && gpsData.longitude) {
+            setExifCoords([gpsData.latitude, gpsData.longitude]);
+          } else {
+            console.warn("No GPS data found in EXIF for image:", imageUrl);
+            setExifCoords(null);
+          }
+        } catch (err) {
+          console.error("Error extracting EXIF data:", err);
+          setExifCoords(null);
+        }
+        setExifLoading(false);
+      }
+    }
+    extractExif();
+  }, [images, currentImageIndex]);
+
+  // Handler for when the user clicks the "Guess" button.
+  const handleGuess = () => {
+    // Proceed only if a marker is placed and EXIF data is available.
+    if (markerPosition && exifCoords) {
+      setIsExpanded(false); // Collapse the map
+      setShowResult(true);
+    }
+  };
+
+  // Handler for moving to the next round.
+  const handleNextRound = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    setMarkerPosition(null);
+    setShowResult(false);
+    // (EXIF extraction for the new image will run via useEffect)
+  };
+
+  // If the user has made a guess (and a marker has been set) and the current image's EXIF data is available,
+  // render the MapResult component.
+  if (showResult && markerPosition && exifCoords) {
+    const guessCoords = [markerPosition.lat, markerPosition.lng];
+    // exifCoords holds the actual coordinates extracted from the image.
+    return (
+      <MapResult
+        guessCoords={guessCoords}
+        actualCoords={exifCoords}
+        onNextRound={handleNextRound}
+        round={currentImageIndex + 1}
+      />
+    );
+  }
+
+  // Determine whether the Guess button should be enabled:
+  // It is enabled when the map is expanded, a marker is placed, EXIF extraction is complete,
+  // and valid EXIF coordinates are available.
+  const canGuess = isExpanded && markerPosition && !exifLoading && exifCoords !== null;
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Main Content */}
       <main className="h-[80vh] grid place-items-center p-10 relative">
         {images.length > 0 ? (
-          // Display the current image inside a card
+          // Display the current image inside a card.
           <Card className="w-full shadow-xl">
             <CardContent className="p-10">
               <div className="relative w-full h-[70vh]">
@@ -151,7 +235,7 @@ export default function PlayPage() {
                 />
                 {/* Handle map clicks */}
                 <MapClickHandler setMarkerPosition={setMarkerPosition} />
-                {/* Render marker if a position is available */}
+                {/* Render marker if one exists */}
                 {markerPosition && (
                   <Marker position={markerPosition}>
                     <Popup>
@@ -163,22 +247,18 @@ export default function PlayPage() {
                 <MapResizeHandler trigger={isExpanded} />
               </MapContainer>
             </div>
-            {/* Guess Button now includes the next image functionality */}
+            {/* Guess Button */}
             <button
+              onClick={handleGuess}
+              disabled={!canGuess}
+              
               className={`w-full px-6 py-2 rounded-lg shadow-md transition ${
-                isExpanded
-                  ? "bg-[#D41B2C] text-white hover:bg-[#b31724]"
+                canGuess
+                  ? "bg-[#D41B2C] text-white hover:bg-[#b31724] cursor-pointer"
                   : "bg-gray-400 text-gray-700 cursor-not-allowed"
               }`}
-              onClick={() => {
-                if (images.length > 0) {
-                  setCurrentImageIndex(
-                    (prevIndex) => (prevIndex + 1) % images.length
-                  );
-                }
-              }}
             >
-              Guess
+              {exifLoading ? "Loading EXIF..." : "Guess"}
             </button>
           </div>
         </div>
