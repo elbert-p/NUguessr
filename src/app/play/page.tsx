@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import '@fontsource/titillium-web'
 
 export default function PlayPage() {
   return (
