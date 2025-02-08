@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
+import '@fontsource/titillium-web'
+
 import { MapPin, Trophy, Edit2, Save, Camera } from "lucide-react"
 
 export default function ProfilePage() {
@@ -17,7 +19,7 @@ export default function ProfilePage() {
     { rank: 2, username: "Philyshark7", score: 2350 },
     { rank: 3, username: "Joshuaa_chann", score: 2200 },
     { rank: 4, username: "Alantai26", score: 2100 },
-    { rank: 5, username: "Joldemorts", score: 2000 },
+    { rank: 5, username: "Joldemorts", score: -10 },
   ]
 
   return (

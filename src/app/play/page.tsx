@@ -3,14 +3,21 @@
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import '@fontsource/titillium-web'
 
 export default function PlayPage() {
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      {/* Header - 10vh */}
-      <header className="h-[10vh] flex items-center justify-center bg-[#D41B2C] shadow-md">
-        <h1 className="text-3xl font-bold text-white">NUGuessr</h1>
-      </header>
+
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Header */}
+      <Link
+      href = "/"
+        className="w-full bg-[#D41B2C] p-4 text-center shadow-md">
+        <h1 className="text-4xl font-bold text-white">
+          NUGuessr
+        </h1>
+
+      </Link>
 
       {/* Main content - 80vh */}
       <main className="h-[80vh] flex items-center justify-center p-4 relative">
