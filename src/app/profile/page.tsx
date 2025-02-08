@@ -19,6 +19,7 @@ import { useUser } from "../../../hooks/use-user"
 import { SignOutButton } from "@/components/signout-button"
 import '@fontsource/titillium-web'
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false)
@@ -60,54 +61,58 @@ export default function ProfilePage() {
     <div className="h-screen flex flex-col bg-white overflow-hidden">
       <div className="flex-1 container px-4 py-4">
         <div className="h-full grid gap-4 md:grid-cols-[1fr_2fr] md:grid-rows-[1fr_auto]">
-          {/* Profile Section */}
-          <div className="h-full">
+            {/* Profile Section */}
+            <div className="h-full">
             <Card className="h-full shadow-lg">
               <CardContent className="h-full flex flex-col items-center justify-center gap-4 p-4">
+              <Image src="/logo.png" alt="NUGuessr Logo" width={300} height={500} 
+              className="flex flex-col items-center justify-center mx-auto" priority />
+              <div className="flex flex-col items-center justify-center gap-4 mt-8">
                 <div className="relative">
                 {profImage ? (
-                      <img src={user?.user_metadata.avatar_url} alt="Profile picture" className="h-full w-full rounded-full object-cover" />
-                    ) : (
-                      <span className="text-3xl text-gray-500"></span>
-                    )}
+                  <img src={user?.user_metadata.avatar_url} alt="Profile picture" className="h-full w-full rounded-full object-cover" />
+                ) : (
+                  <span className="text-3xl text-gray-500"></span>
+                )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {isEditingUsername ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="max-w-[200px] border-primary focus-visible:ring-primary"
-                      />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setIsEditingUsername(false)}
-                        aria-label="Save username"
-                        className="text-primary hover:text-primary/90 hover:bg-primary/10"
-                      >
-                        <Save className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-primary">{user?.user_metadata.name}</span>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setIsEditingUsername(true)}
-                        aria-label="Edit username"
-                        className="text-primary hover:text-primary/90 hover:bg-primary/10"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
+                {isEditingUsername ? (
+                  <div className="flex items-center gap-2">
+                  <Input
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="max-w-[200px] border-primary focus-visible:ring-primary"
+                  />
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setIsEditingUsername(false)}
+                    aria-label="Save username"
+                    className="text-primary hover:text-primary/90 hover:bg-primary/10"
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold text-primary">{user?.user_metadata.name}</span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setIsEditingUsername(true)}
+                    aria-label="Edit username"
+                    className="text-primary hover:text-primary/90 hover:bg-primary/10"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  </div>
+                )}
                 </div>
-                <SignOutButton/>
+                <SignOutButton />
+              </div>
               </CardContent>
             </Card>
-          </div>
+            </div>
 
           {/* Stats Section */}
           <div className="flex flex-col gap-4">
