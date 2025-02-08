@@ -40,7 +40,7 @@ export default function HomePage() {
           </p>
           <div className="pt-4">
           <Link
-            href="/play"
+            href="/play/1"
             className="text-white  inline-block mb-8 bg-red-600 hover:bg-red-700 py-4 px-20 rounded-full text-2xl shadow-lg transition-all hover:scale-105"
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
           >

@@ -158,6 +158,7 @@ export default function PlayPage() {
             >
               Guess
             </button>
+            
           </div>
         </div>
       </main>
