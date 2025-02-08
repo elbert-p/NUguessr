@@ -20,7 +20,10 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   const dLon = ((lon2 - lon1) * Math.PI) / 180
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
   return Math.round(R * c)
 }
@@ -43,14 +46,24 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
     iconAnchor: [12, 41],
   })
 
+  // Compute bounds so both markers are visible
+  const latMin = Math.min(guessCoords[0], actualCoords[0])
+  const lngMin = Math.min(guessCoords[1], actualCoords[1])
+  const latMax = Math.max(guessCoords[0], actualCoords[0])
+  const lngMax = Math.max(guessCoords[1], actualCoords[1])
+  const bounds: [[number, number], [number, number]] = [
+    [latMin, lngMin],
+    [latMax, lngMax],
+  ]
+
   return (
     <div className="flex flex-col items-center gap-6 p-4 min-h-screen bg-[#1a1b26] text-white">
       <h1 className="text-4xl font-bold">Round {round}</h1>
 
       <div className="w-full max-w-4xl h-[400px] rounded-lg overflow-hidden">
         <MapContainer
-          center={[(guessCoords[0] + actualCoords[0]) / 2, (guessCoords[1] + actualCoords[1]) / 2]}
-          zoom={4}
+          bounds={bounds}
+          boundsOptions={{ padding: [50, 50] }}
           className="w-full h-full"
         >
           <TileLayer
@@ -63,23 +76,22 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
         </MapContainer>
       </div>
 
-      <div className="text-3xl font-bold text-[#ffd700]">{points} points</div>
+      <div className="text-3xl font-bold text-red-500">{points} points</div>
 
       <div className="w-full max-w-2xl">
-        <Progress value={(points / 5000) * 100} className="h-2" />
+        <Progress value={(points / 5000) * 100} className="h-2 bg-red-500" />
       </div>
 
       <div className="text-lg italic text-gray-300">
-        Your guess was <span className="font-bold">{distance} MILES</span> from the correct location.
+        Your guess was <span className="font-bold">{distance} miles</span> from the correct location.
       </div>
 
       <Button
         onClick={onNextRound}
-        className="mt-4 px-8 py-6 text-xl bg-[#8cc63f] hover:bg-[#7ab52f] text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+        className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
       >
         START NEXT ROUND
       </Button>
     </div>
   )
 }
-
