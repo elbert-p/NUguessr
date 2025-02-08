@@ -2,12 +2,13 @@
  
 import { useState } from "react"
 import { useSearchParams } from "next/navigation"
- 
+import '@fontsource/titillium-web'
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
 import { Icons } from "@/components/icons"
- 
+
+/* 
 export default function SignInPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false)
   const supabase = createClient()
@@ -42,7 +43,12 @@ export default function SignInPage() {
   }
  
   return (
-    <Button
+    <div className="flex flex-col items-center justify-center h-screen space-y-4">
+        <p className=" text-5xl font-[1000] text-black" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
+            Sign up with Google:
+          </p>
+    <Button 
+    className="text-white items-center bg-gray-400 hover:bg-red-700 py-7 px-9 rounded-full text-2xl shadow-lg transition-all hover:scale-105"
       type="button"
       variant="outline"
       onClick={signInWithGoogle}
@@ -53,7 +59,9 @@ export default function SignInPage() {
       ) : (
         <Icons.google className="mr-2 size-6" />
       )}{" "}
-      Sign in with Google
+      Sign up
+
     </Button>
+    </div>
   )
-}
+} */

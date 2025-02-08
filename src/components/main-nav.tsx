@@ -1,6 +1,6 @@
 import { NavItem } from "./nav-item"
-import { UserAccountNav } from "./user-account-nav"
- 
+//import { UserAccountNav } from "./user-account-nav"
+ /*
 export function MainNav() {
   return (
     <nav className="flex h-16 items-center justify-between border px-4">
@@ -14,4 +14,4 @@ export function MainNav() {
       <UserAccountNav />
     </nav>
   )
-}
+}*/
