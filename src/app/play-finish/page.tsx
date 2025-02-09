@@ -1,31 +1,48 @@
 "use client"
 
-import { useSearchParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import dynamic from "next/dynamic"
 import "leaflet/dist/leaflet.css"
-import { RotateCcw, Home } from "lucide-react"
+import { RotateCcw } from "lucide-react"
 import { SignInButton } from "@/components/signin-button"
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react"
 import { useUser } from "../../../hooks/use-user"
 
 // Dynamically import map components to avoid SSR issues
-const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false })
-const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false })
-const Marker = dynamic(() => import("react-leaflet").then((mod) => mod.Marker), { ssr: false })
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+)
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+)
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+)
 
 const MAX_POSSIBLE_SCORE = 25000 // Maximum possible score for reference
 
 export default function PlayFinishPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const totalScore = Number(searchParams.get("totalScore") || "0")
-  const scorePercentage = (totalScore / MAX_POSSIBLE_SCORE) * 100
   const { user } = useUser()
 
-  // Mock data for pin locations - replace with actual game data
+  // State to hold the final score, initialized to 0.
+  const [finalScore, setFinalScore] = useState(0)
+
+  // On mount, read the accumulated final score from local storage.
+  useEffect(() => {
+    const storedScore = Number(localStorage.getItem("finalScore") || "0")
+    setFinalScore(storedScore)
+  }, [])
+
+  const scorePercentage = (finalScore / MAX_POSSIBLE_SCORE) * 100
+
+  // Mock data for pin locations - replace with actual game data if needed
   const pinLocations = [
     { lat: 42.3398, lng: -71.0892 }, // Boston
     { lat: 48.8566, lng: 2.3522 }, // Paris
@@ -33,19 +50,32 @@ export default function PlayFinishPage() {
     { lat: 41.9028, lng: 12.4964 }, // Rome
   ]
 
-    // Generate a random link with 5 unique random numbers (between 1 and 55)
-    const randomLink = useMemo(() => {
-      // Create an array of numbers from 1 to 55.
-      const numbers = Array.from({ length: 55 }, (_, i) => i + 1);
-      // Shuffle the numbers using the Fisher-Yates algorithm.
-      for (let i = numbers.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
-      }
-      // Take the first 5 numbers and join them with a hyphen.
-      const fiveNumbers = numbers.slice(0, 5);
-      return `/play/${fiveNumbers.join("-")}`;
-    }, []);
+  // Generate a random link with 5 unique random numbers (between 1 and 55)
+  const randomLink = useMemo(() => {
+    // Create an array of numbers from 1 to 55.
+    const numbers = Array.from({ length: 55 }, (_, i) => i + 1)
+    // Shuffle the numbers using the Fisher-Yates algorithm.
+    for (let i = numbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[numbers[i], numbers[j]] = [numbers[j], numbers[i]]
+    }
+    // Take the first 5 numbers and join them with a hyphen.
+    const fiveNumbers = numbers.slice(0, 5)
+    return `/play/${fiveNumbers.join("-")}`
+  }, [])
+
+  // Reset game values from local storage.
+  const resetGame = () => {
+    localStorage.removeItem("score")
+    localStorage.removeItem("processedRound")
+    localStorage.removeItem("finalScore")
+  }
+
+  // Handle "Play Again" click: reset storage and navigate.
+  const handlePlayAgain = () => {
+    resetGame()
+    router.push(randomLink)
+  }
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
@@ -73,9 +103,15 @@ export default function PlayFinishPage() {
 
         {/* Game Finished Message and Score */}
         <div className="text-center space-y-4 w-full max-w-2xl">
-          <h1 className="text-4xl font-bold text-primary">Game finished, well done!</h1>
+          <h1 className="text-4xl font-bold text-primary">
+            Game finished, well done!
+          </h1>
           <p className="text-2xl text-muted-foreground">
-            Your total score was <span className="font-bold text-primary">{totalScore.toLocaleString()}</span> points
+            Your total score was{" "}
+            <span className="font-bold text-primary">
+              {finalScore.toLocaleString()}
+            </span>{" "}
+            points
           </p>
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground px-1">
@@ -85,7 +121,7 @@ export default function PlayFinishPage() {
             <Progress value={scorePercentage} className="h-2" />
           </div>
           <p className="text-4xl text-muted-foreground py-4">
-          {user?.email ? "" : "Log in to save your score!"}
+            {user?.email ? "" : "Log in to save your score!"}
           </p>
         </div>
 
@@ -94,12 +130,12 @@ export default function PlayFinishPage() {
           <Button
             variant="outline"
             className="flex-1 h-12 text-2xl font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white"
-            onClick={() => router.push(randomLink)}
+            onClick={handlePlayAgain}
           >
             <RotateCcw className="mr-2 h-5 w-5" />
             Play Again
           </Button>
-          <SignInButton/>
+          <SignInButton />
         </div>
       </main>
     </div>

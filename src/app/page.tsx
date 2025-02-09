@@ -32,6 +32,13 @@ export default function HomePage() {
     return `/play/${fiveNumbers.join("-")}`;
   }, []);
 
+  // Function to reset game-related localStorage values.
+  const resetGame = () => {
+    localStorage.removeItem("score");
+    localStorage.removeItem("processedRound");
+    localStorage.removeItem("finalScore");
+  };
+
   return (
     <div
       className="min-h-screen w-full flex flex-col items-center bg-no-repeat bg-fixed"
@@ -72,6 +79,7 @@ export default function HomePage() {
           <div className="pt-4">
             <Link
               href={randomLink}
+              onClick={resetGame}
               className="text-white inline-block mb-8 bg-red-600 hover:bg-red-700 py-4 px-20 rounded-full text-2xl shadow-lg transition-all hover:scale-105"
               style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
             >

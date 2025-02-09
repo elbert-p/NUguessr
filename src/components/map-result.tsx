@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css"
 import { Icon } from "leaflet" 
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { useEffect, useState } from "react"
 
 interface MapResultProps {
   guessCoords: [number, number]
@@ -45,6 +46,28 @@ function calculatePoints(distance: number, timeout: boolean) {
 export default function MapResult({ guessCoords, actualCoords, onNextRound, round, timeout, notes }: MapResultProps) {
   const distance = calculateDistance(guessCoords[0], guessCoords[1], actualCoords[0], actualCoords[1])
   const points = calculatePoints(distance, timeout)
+  
+  // Initialize score from local storage if available; otherwise start at 0.
+  const [score, setScore] = useState(() => Number(localStorage.getItem("score")) || 0)
+
+  // When this component mounts (or when round/points change), update the score only if
+  // we have not already processed this round. We use a "processedRound" key in localStorage
+  // to keep track.
+  useEffect(() => {
+    const processedRound = Number(localStorage.getItem("processedRound") || 0)
+    if (processedRound < round) {
+      const previousScore = Number(localStorage.getItem("score")) || 0
+      const newScore = previousScore + points
+      setScore(newScore)
+      localStorage.setItem("score", newScore.toString())
+      localStorage.setItem("processedRound", round.toString())
+      
+      // If this is the final round, also store the final score.
+      if (round === 5) {
+        localStorage.setItem("finalScore", newScore.toString())
+      }
+    }
+  }, [round, points])
 
   const customIcon = new Icon({
     iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
@@ -97,22 +120,22 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
             <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#000000" weight={5} />
           </MapContainer>
         </div>
-  {/* Fun Fact Container - Properly Adjusting to Content */}
-  {notes && (
-    <div className="w-fit max-w-[250px] max-h-[200px] bg-white rounded-lg p-3 shadow-lg flex flex-col items-start overflow-y-auto">
-      <h2 className="text-lg font-bold text-gray-800 mb-1">📌 Fun Fact</h2>
-      <p className="text-black text-md whitespace-pre-wrap leading-tight">{notes}</p>
-    </div>
-)}
-
-
-
-
+        {/* Fun Fact Container - Properly Adjusting to Content */}
+        {notes && (
+          <div className="w-fit max-w-[250px] max-h-[200px] bg-white rounded-lg p-3 shadow-lg flex flex-col items-start overflow-y-auto">
+            <h2 className="text-lg font-bold text-gray-800 mb-1">📌 Fun Fact</h2>
+            <p className="text-black text-md whitespace-pre-wrap leading-tight">{notes}</p>
+          </div>
+        )}
       </div>
 
-      {/* Score and Progress Bar */}
+      {/* Score, Accumulated Total, and Progress Bar */}
       <div className="flex flex-col items-center w-full py-6">
         <div className="text-3xl font-bold text-red-500">{points} points</div>
+        <div className="text-xl mt-2">
+          {/* Optionally show the running total score */}
+          Total Score: {score} points
+        </div>
         <div className="w-full max-w-2xl py-2">
           <Progress value={(points / 5000) * 100} className="h-2 bg-red-200" />
         </div>
