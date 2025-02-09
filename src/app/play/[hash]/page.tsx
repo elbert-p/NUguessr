@@ -125,6 +125,8 @@ export default function PlayPage() {
   const [exifCoords, setExifCoords] = useState<[number, number] | null>(null)
   const [exifLoading, setExifLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [timeout, setTimeout] = useState(false)
+
 
   // Create a ref for the map container element.
   const mapContainerRef = useRef<HTMLDivElement>(null)
@@ -226,6 +228,7 @@ export default function PlayPage() {
 
     // Handler for moving to the next round.
     const handleTimeout = () => {
+      setTimeout(true)
       setShowResult(true)
       setMarkerPosition(exifCoords ? L.latLng(exifCoords[0], exifCoords[1]) : null)
       setIsExpanded(false) // Collapse the map
@@ -242,6 +245,7 @@ export default function PlayPage() {
         actualCoords={exifCoords}
         onNextRound={handleNextRound}
         round={currentImageIndex + 1}
+        timeout={timeout}
       />
     )
   }

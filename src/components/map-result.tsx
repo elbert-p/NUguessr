@@ -11,6 +11,7 @@ interface MapResultProps {
   actualCoords: [number, number]
   onNextRound: () => void
   round: number
+  timeout: boolean
 }
 
 // Calculate distance between two points using the Haversine formula
@@ -29,7 +30,10 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 // Calculate points based on distance (max 5000 points at 0 distance)
-function calculatePoints(distance: number) {
+function calculatePoints(distance: number, timeout: boolean) {
+  if (timeout){
+    return 0
+  }
   if (distance < 12) {
     return 5000
   } else {
@@ -37,9 +41,9 @@ function calculatePoints(distance: number) {
   }
 }
 
-export default function MapResult({ guessCoords, actualCoords, onNextRound, round }: MapResultProps) {
+export default function MapResult({ guessCoords, actualCoords, onNextRound, round, timeout }: MapResultProps) {
   const distance = calculateDistance(guessCoords[0], guessCoords[1], actualCoords[0], actualCoords[1])
-  const points = calculatePoints(distance)
+  const points = calculatePoints(distance, timeout)
 
   const customIcon = new Icon({
     iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
@@ -95,7 +99,7 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
       </div>
 
       <div className="text-lg italic text-gray-300">
-        Your guess was <span className="font-bold">{distance} yards</span> from the correct location.
+      {timeout ? "Time's up!" : <>Your guess was <span className="font-bold">{distance} yards</span> from the correct location.</>}
           </div>
           <Button
       onClick={onNextRound}
