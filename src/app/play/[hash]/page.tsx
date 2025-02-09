@@ -212,8 +212,64 @@ export default function PlayPage() {
     }
   }
 
+  const updateTotalGamesPlayed = async () => {
+    console.log("updateTotalGamesPlayed function called")
+
+    const supabaseClient = createClient()
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser()
+
+    if (userError || !userData?.user) {
+        console.error("Error getting user:", userError)
+        return
+    }
+
+    const userId = userData.user.id
+    console.log("Authenticated user ID:", userId)
+
+    // Fetch the user's current total_games count
+    let { data: userRecord, error: fetchError } = await supabaseClient
+        .from("users")
+        .select("total_games")
+        .eq("id", userId)
+        .single()
+
+    if (fetchError) {
+        console.warn("User not found, inserting new record...")
+
+        // Insert new user record with total_games = 1
+        const { error: insertError } = await supabaseClient
+            .from("users")
+            .insert([{ id: userId, total_games: 1 }])
+
+        if (insertError) {
+            console.error("Error inserting new user:", insertError)
+            return
+        }
+
+        console.log("New user inserted with total_games = 1")
+        return
+    }
+
+    console.log("Current total games:", userRecord?.total_games)
+
+    const newTotalGames = (userRecord?.total_games || 0) + 1
+
+    // Update total_games
+    const { error: updateError } = await supabaseClient
+        .from("users")
+        .update({ total_games: newTotalGames })
+        .eq("id", userId)
+
+    if (updateError) {
+        console.error("Error updating total games:", updateError)
+    } else {
+        console.log(`Successfully updated total games to: ${newTotalGames}`)
+    }
+}
+
+
   // Handler for moving to the next round.
-  const handleNextRound = () => {
+  const handleNextRound = async () => {
     if (currentImageIndex < images.length - 1) {
       setCurrentImageIndex((prevIndex) => prevIndex + 1)
       setMarkerPosition(null)
@@ -222,6 +278,7 @@ export default function PlayPage() {
 
       // All rounds completed. You can add any completion logic here.
       console.log("Game completed!")
+      await updateTotalGamesPlayed()
       router.push("/play-finish")
     }
   }
