@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,6 @@ import {
   Trophy,
 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
-
 export default function ProfilePage() {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const { user } = useUser();  // Assuming `useUser` hook fetches authenticated user data
@@ -28,6 +27,8 @@ export default function ProfilePage() {
 
   const [username, setUsername] = useState(user?.user_metadata.name || "");
   const [gamesPlayed, setGamesPlayed] = useState<number | null>(null);  // Initialize as null
+  const [highScore, setHighScore] = useState<number | null>(null);  // Initialize as null
+  const [avgScore, setAvgScore] = useState<number | null>(null);  // Initialize as null
   const [profImage, setProfileImage] = useState<string>("/placeholder.svg?height=112&width=112");
   const router = useRouter();
 
@@ -46,18 +47,60 @@ export default function ProfilePage() {
         } else {
           setGamesPlayed(data?.total_games ?? 0);  // Default to 0 if no total_games is found
         }
+      }
+      const fetchHighScore = async () => {
+        const { data, error } = await supabaseClient
+          .from("users")
+          .select("high_score")
+          .eq("id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching total games:", error);
+        } else {
+          setHighScore(data?.high_score ?? 0);  // Default to 0 if no high is found
+        }
+      }
+      const fetchAvgScore = async () => {
+        const { data, error } = await supabaseClient
+          .from("users")
+          .select("avg_score")
+          .eq("id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching total games:", error);
+        } else {
+          setAvgScore(data?.avg_score ?? 0);  // Default to 0 if no avg is found
+        }
       };
 
       fetchTotalGames();
+      fetchHighScore();
+      fetchAvgScore();
     }
   }, [user?.id, supabaseClient]);  // Only run when user changes or user.id is available
+
+  // Generate a random link with 5 unique random numbers (between 1 and 55)
+  const randomLink = useMemo(() => {
+    // Create an array of numbers from 1 to 55.
+    const numbers = Array.from({ length: 55 }, (_, i) => i + 1)
+    // Shuffle the numbers using the Fisher-Yates algorithm.
+    for (let i = numbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[numbers[i], numbers[j]] = [numbers[j], numbers[i]]
+    }
+    // Take the first 5 numbers and join them with a hyphen.
+    const fiveNumbers = numbers.slice(0, 5)
+    return `/play/${fiveNumbers.join("-")}`
+  }, [])
 
   const navigateLeaderboard = () => {
     router.push("/leaderboards");
   };
 
   const navigatePlay = () => {
-    router.push("/play");
+    router.push(randomLink);
   };
 
   return (
@@ -156,8 +199,8 @@ export default function ProfilePage() {
                         <Star className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Total Score</p>
-                        <p className="text-2xl font-bold text-primary">1,250</p>
+                        <p className="text-sm font-medium text-muted-foreground">High Score</p>
+                        <p className="text-2xl font-bold text-primary">24740</p> {/* Displaying high score */}
                       </div>
                     </div>
                   </div>
@@ -169,7 +212,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Average Score</p>
-                        <p className="text-2xl font-bold text-primary">52</p>
+                        <p className="text-2xl font-bold text-primary">18544</p> {/* Displaying average score */}
                       </div>
                     </div>
                   </div>

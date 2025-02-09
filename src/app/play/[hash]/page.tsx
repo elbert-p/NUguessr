@@ -21,6 +21,7 @@ import exifr from "exifr" // EXIF extraction library
 import { useParams } from "next/navigation"
 import { useSearchParams, useRouter } from "next/navigation";
 import Timer from "@/components/timer"
+import { updateHighScore } from "@/app/play-finish/page"
 
 // ---------------------
 // Supabase & Image Helpers
@@ -275,6 +276,7 @@ export default function PlayPage() {
       // All rounds completed. You can add any completion logic here.
       console.log("Game completed!")
       await updateTotalGamesPlayed()
+      //await updateHighScore()
       router.push("/play-finish")
     }
   }

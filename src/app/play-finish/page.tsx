@@ -10,6 +10,7 @@ import { RotateCcw } from "lucide-react"
 import { SignInButton } from "@/components/signin-button"
 import { useState, useEffect, useMemo } from "react"
 import { useUser } from "../../../hooks/use-user"
+import { createClient } from "@/lib/supabase/client"
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(
@@ -27,12 +28,73 @@ const Marker = dynamic(
 
 const MAX_POSSIBLE_SCORE = 25000 // Maximum possible score for reference
 
+export const updateHighScore = async () => {
+  const [finalScore, setFinalScore] = useState(0)
+  // On mount, read the accumulated final score from local storage.
+  useEffect(() => {
+    const storedScore = Number(localStorage.getItem("finalScore") || "0")
+    setFinalScore(storedScore)
+  }, [])
+
+  const scorePercentage = (finalScore / MAX_POSSIBLE_SCORE) * 100
+
+  const supabaseClient = createClient()
+  const { data: userData, error: userError } = await supabaseClient.auth.getUser()
+
+  if (userError || !userData?.user) {
+      console.error("Error getting user:", userError)
+      return
+  }
+
+  const userId = userData.user.id
+  console.log("Authenticated user ID:", userId)
+
+  // Fetch the user's current high score count
+  let { data: userRecord, error: fetchError } = await supabaseClient
+      .from("users")
+      .select("high_score")
+      .eq("id", userId)
+      .single()
+
+  if (fetchError) {
+      console.warn("User not found, inserting new record...")
+
+      // Insert new user record with total_games = 1
+      const { error: insertError } = await supabaseClient
+          .from("users")
+          .insert([{ id: userId, high_score: finalScore }])
+
+      if (insertError) {
+          console.error("Error inserting new user:", insertError)
+          return
+      }
+
+      console.log("New user inserted with high score = finalScore")
+      return
+  }
+
+  console.log("Current total games:", userRecord?.high_score)
+
+  const newHigh = (userRecord?.high_score || 0) + 1
+
+  const { error: updateError } = await supabaseClient
+      .from("users")
+      .update({ total_games: newHigh })
+      .eq("id", userId)
+
+  if (updateError) {
+      console.error("Error updating total games:", updateError)
+  } else {
+      console.log(`Successfully updated total games to: ${newHigh}`)
+  }
+}
+
 export default function PlayFinishPage() {
+  const [finalScore, setFinalScore] = useState(0)
   const router = useRouter()
   const { user } = useUser()
 
   // State to hold the final score, initialized to 0.
-  const [finalScore, setFinalScore] = useState(0)
 
   // On mount, read the accumulated final score from local storage.
   useEffect(() => {
@@ -76,6 +138,7 @@ export default function PlayFinishPage() {
     resetGame()
     router.push(randomLink)
   }
+
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
