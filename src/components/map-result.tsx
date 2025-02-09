@@ -32,7 +32,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 // Calculate points based on distance (max 5000 points at 0 distance)
 function calculatePoints(distance: number, timeout: boolean) {
-  if (timeout){
+  if (timeout) {
     return 0
   }
   if (distance < 12) {
@@ -62,7 +62,6 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
     iconAnchor: [12, 41],
   });
 
-
   // Compute bounds so both markers are visible
   const latMin = Math.min(guessCoords[0], actualCoords[0])
   const lngMin = Math.min(guessCoords[1], actualCoords[1])
@@ -74,13 +73,16 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
   ]
 
   return (
-    <div className="flex flex-col items-center gap-6 p-4 min-h-screen bg-[#1a1b26] text-white">
+    <div className="flex flex-col items-center justify-between py-4 h-screen bg-[#1a1b26] text-white">
       <h1 className="text-4xl font-bold">Round {round}</h1>
 
-      {/* Container for map and notes in a row */}
-      <div className="w-full max-w-4xl flex flex-row gap-4">
+      {/* Map and Fun Fact Container */}
+      <div className="w-full h-[65vh] py-3 flex flex-row gap-4">
+        {/* Left Spacer for Balance */}
+        <div className="w-[250px]"></div>
+
         {/* Map Container */}
-        <div className="flex-1 flex justify-center items-center h-[400px] rounded-lg overflow-hidden">
+        <div className="flex-1 flex justify-center items-center h-full rounded-lg overflow-hidden">
           <MapContainer
             bounds={bounds}
             boundsOptions={{ padding: [50, 50] }}
@@ -95,34 +97,40 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
             <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#000000" weight={5} />
           </MapContainer>
         </div>
+  {/* Fun Fact Container - Properly Adjusting to Content */}
+  {notes && (
+    <div className="w-fit max-w-[250px] max-h-[200px] bg-white rounded-lg p-3 shadow-lg flex flex-col items-start overflow-y-auto">
+      <h2 className="text-lg font-bold text-gray-800 mb-1">📌 Fun Fact</h2>
+      <p className="text-black text-md whitespace-pre-wrap leading-tight">{notes}</p>
+    </div>
+)}
 
-        {/* Notes Container */}
-        {notes && (
-          <div className="flex-1 h-[400px] bg-white rounded-lg p-4 overflow-y-auto">
-            <p className="text-black text-2xl">{notes}</p>
-          </div>
-        )}
+
+
+
       </div>
 
-      <div className="text-3xl font-bold text-red-500">{points} points</div>
-
-      <div className="w-full max-w-2xl">
-        <Progress value={(points / 5000) * 100} className="h-2 bg-red-200" />
+      {/* Score and Progress Bar */}
+      <div className="flex flex-col items-center w-full py-6">
+        <div className="text-3xl font-bold text-red-500">{points} points</div>
+        <div className="w-full max-w-2xl py-2">
+          <Progress value={(points / 5000) * 100} className="h-2 bg-red-200" />
+        </div>
+        <div className="text-lg italic text-gray-300">
+          {timeout ? (
+            "Time's up!"
+          ) : (
+            <>
+              Your guess was <span className="font-bold">{distance} yards</span> from the correct location.
+            </>
+          )}
+        </div>
       </div>
 
-      <div className="text-lg italic text-gray-300">
-        {timeout ? (
-          "Time's up!"
-        ) : (
-          <>
-            Your guess was <span className="font-bold">{distance} yards</span> from the correct location.
-          </>
-        )}
-      </div>
-
+      {/* Next Round Button */}
       <Button
         onClick={onNextRound}
-        className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+        className="mt-2 px-8 py-6 text-lg bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
       >
         {round === 5 ? "VIEW RESULTS" : "START NEXT ROUND"}
       </Button>
