@@ -7,52 +7,16 @@ import "@fontsource/open-sans";
 import "@fontsource/titillium-web";
 import { useUser } from "../../hooks/use-user";
 import { createClient } from "@/lib/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { Icons } from "@/components/icons";
 import { useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SignInButton } from "@/components/signin-button";
 
 export default function HomePage() {
   const { user } = useUser();
-  const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
-
-  async function signInWithGoogle() {
-    setIsGoogleLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback${
-            next ? `?next=${encodeURIComponent(next)}` : ""
-          }`,
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      toast({
-        title: "Please try again.",
-        description: "There was an error logging in with Google.",
-        variant: "destructive",
-      });
-      setIsGoogleLoading(false);
-    }
-  }
-
-  const handleButtonClick = () => {
-    if (user?.email) {
-      router.push("/profile");
-    } else {
-      signInWithGoogle();
-    }
-  };
 
   // Generate a random link with 5 unique random numbers (between 1 and 55)
   const randomLink = useMemo(() => {

@@ -7,6 +7,8 @@ import { Progress } from "@/components/ui/progress"
 import dynamic from "next/dynamic"
 import "leaflet/dist/leaflet.css"
 import { RotateCcw, Home } from "lucide-react"
+import { SignInButton } from "@/components/signin-button"
+import { useState, useMemo } from "react";
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false })
@@ -28,6 +30,20 @@ export default function PlayFinishPage() {
     { lat: -23.5505, lng: -46.6333 }, // São Paulo
     { lat: 41.9028, lng: 12.4964 }, // Rome
   ]
+
+    // Generate a random link with 5 unique random numbers (between 1 and 55)
+    const randomLink = useMemo(() => {
+      // Create an array of numbers from 1 to 55.
+      const numbers = Array.from({ length: 55 }, (_, i) => i + 1);
+      // Shuffle the numbers using the Fisher-Yates algorithm.
+      for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+      }
+      // Take the first 5 numbers and join them with a hyphen.
+      const fiveNumbers = numbers.slice(0, 5);
+      return `/play/${fiveNumbers.join("-")}`;
+    }, []);
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
@@ -72,19 +88,13 @@ export default function PlayFinishPage() {
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
           <Button
             variant="outline"
-            className="flex-1 h-12 text-lg font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white"
-            onClick={() => router.push("/play")}
+            className="flex-1 h-12 text-2xl font-bold border-2 border-primary text-primary hover:bg-primary hover:text-white"
+            onClick={() => router.push(randomLink)}
           >
             <RotateCcw className="mr-2 h-5 w-5" />
             Play Again
           </Button>
-          <Button
-            className="flex-1 h-12 text-lg font-bold bg-primary hover:bg-primary/90"
-            onClick={() => router.push("/profile")}
-          >
-            <Home className="mr-2 h-5 w-5" />
-            Back to Profile
-          </Button>
+          <SignInButton/>
         </div>
       </main>
     </div>
