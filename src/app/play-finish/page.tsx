@@ -9,6 +9,7 @@ import "leaflet/dist/leaflet.css"
 import { RotateCcw, Home } from "lucide-react"
 import { SignInButton } from "@/components/signin-button"
 import { useState, useMemo } from "react";
+import { useUser } from "../../../hooks/use-user"
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false })
@@ -22,6 +23,7 @@ export default function PlayFinishPage() {
   const searchParams = useSearchParams()
   const totalScore = Number(searchParams.get("totalScore") || "0")
   const scorePercentage = (totalScore / MAX_POSSIBLE_SCORE) * 100
+  const { user } = useUser()
 
   // Mock data for pin locations - replace with actual game data
   const pinLocations = [
@@ -82,6 +84,9 @@ export default function PlayFinishPage() {
             </div>
             <Progress value={scorePercentage} className="h-2" />
           </div>
+          <p className="text-4xl text-muted-foreground py-4">
+          {user?.email ? "" : "Log in to save your score!"}
+          </p>
         </div>
 
         {/* Navigation Buttons */}

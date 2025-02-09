@@ -62,7 +62,7 @@ export function SignInButton() {
           ) : (
           profileImage()
           )}{" "}
-          {user?.email ? "Profile" : "Sign up or Log in"}
+          {user?.email ? "Profile" : "Log in"}
           </Button>
       )
 }

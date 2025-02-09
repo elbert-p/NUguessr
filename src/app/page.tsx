@@ -78,7 +78,7 @@ export default function HomePage() {
               <span
                 className="text-white-300 text-3xl font-[Open_Sans] transition-colors hover:text-red-100"
               >
-                Try your luck!
+                Test your skills!
               </span>
             </Link>
           </div>
