@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -29,13 +29,28 @@ export default function ProfilePage() {
   //const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
+  // Generate a random link with 5 unique random numbers (between 1 and 55)
+  const randomLink = useMemo(() => {
+    // Create an array of numbers from 1 to 55.
+     const numbers = Array.from({ length: 55 }, (_, i) => i + 1);
+     // Shuffle the numbers using the Fisher-Yates algorithm.
+     for (let i = numbers.length - 1; i > 0; i--) {
+       const j = Math.floor(Math.random() * (i + 1));
+       [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+     // Take the first 5 numbers and join them with a hyphen.
+     const fiveNumbers = numbers.slice(0, 5);
+     return `/play/${fiveNumbers.join("-")}`;
+   }, []);
+    
   const navigateLeaderboard = () => {
     router.push("/leaderboards")
   }
 
   const navigatePlay = () => {
-    router.push("/play/1")
+    router.push(randomLink)
   }
+
 
   useEffect(() => {
     if (user?.user_metadata.name) {
