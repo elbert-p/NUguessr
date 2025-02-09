@@ -59,6 +59,8 @@ const Popup = dynamic(
   { ssr: false }
 )
 
+var locationArray=[]
+
 import { useMap, useMapEvent } from "react-leaflet"
 
 // ---------------------
@@ -225,6 +227,7 @@ export default function PlayPage() {
   // render the MapResult component.
   if (showResult && markerPosition && exifCoords) {
     const guessCoords = [markerPosition.lat, markerPosition.lng]
+    locationArray.push({"Guess": guessCoords, "Actual": exifCoords});
     return (
       <MapResult
         guessCoords={guessCoords}
@@ -244,10 +247,13 @@ export default function PlayPage() {
       <main className="h-screen relative">
         {/* Round Indicator (Top Right) */}
         {images.length > 0 && (
-          <div className="absolute top-4 right-4 z-50 bg-[#E50000] text-white px-4 py-2 rounded-lg shadow-md">
-            Round {currentImageIndex + 1} / {images.length}
+          <div className="absolute top-3 right-10 z-50 bg-[#E50000] text-white px-4 py-2 rounded-lg shadow-md font-bold">
+            <span className=" rounded-full px-2 text-xs mb-1">Round</span><br></br>
+            <span className="text-white text-2xl font-bold">{currentImageIndex + 1} / {images.length} </span>
           </div>
+
         )}
+
 
         {/* Main Content */}
         {images.length > 0 ? (
