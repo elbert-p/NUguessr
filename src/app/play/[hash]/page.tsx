@@ -20,6 +20,7 @@ import MapResult from "./../../../components/map-result" // adjust path as neede
 import exifr from "exifr" // EXIF extraction library
 import { useParams } from "next/navigation"
 import { useSearchParams, useRouter } from "next/navigation";
+import Timer from "@/components/timer"
 
 // ---------------------
 // Supabase & Image Helpers
@@ -223,6 +224,13 @@ export default function PlayPage() {
     }
   }
 
+    // Handler for moving to the next round.
+    const handleTimeout = () => {
+      setShowResult(true)
+      setMarkerPosition(exifCoords ? L.latLng(exifCoords[0], exifCoords[1]) : null)
+      setIsExpanded(false) // Collapse the map
+    }
+
   // If the user has made a guess and the current image's EXIF data is available,
   // render the MapResult component.
   if (showResult && markerPosition && exifCoords) {
@@ -242,86 +250,92 @@ export default function PlayPage() {
   const canGuess =
     isExpanded && markerPosition && !exifLoading && exifCoords !== null
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#1a1b26]">
-      <main className="h-screen relative">
-        {/* Round Indicator (Top Right) */}
-        {images.length > 0 && (
-          <div className="absolute top-3 right-10 z-50 bg-[#E50000] text-white px-4 py-2 rounded-lg shadow-md font-bold">
-            <span className=" rounded-full px-2 text-xs mb-1">Round</span><br></br>
-            <span className="text-white text-2xl font-bold">{currentImageIndex + 1} / {images.length} </span>
+    return (
+      <div className="min-h-screen flex flex-col bg-[#1a1b26]">
+        <main className="h-screen relative">
+          {/* Timer Overlapping the Image */}
+          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded-lg">
+            <Timer seconds={10} onComplete={handleTimeout} />
           </div>
-
-        )}
-
-
-        {/* Main Content */}
-        {images.length > 0 ? (
-          // Display the current image
-          <div className="relative w-full h-screen">
-            <Image
-              src={
-                getSupabaseImageUrl(images[currentImageIndex].image_url) ||
-                "/placeholder.svg"
-              }
-              alt="Campus location"
-              fill
-              unoptimized
-              className="object-contain"
-              priority
-            />
-          </div>
-        ) : (
-          <p className="text-white">Loading images...</p>
-        )}
-
-        {/* Map & Guess Button Container */}
-        <div
-          ref={mapContainerRef}
-          className={`fixed bottom-8 right-8 rounded-lg overflow-hidden shadow-xl border border-gray-200 transition-all duration-300 ${
-            isExpanded ? "w-[50%] h-[50vh]" : "w-[200px] h-[150px]"
-          }`}
-          onMouseEnter={() => setIsExpanded(true)}
-        >
-          <div className="flex flex-col h-full">
-            {/* Map */}
-            <div className="flex-1 relative">
-              <MapContainer
-                center={[42.3398, -71.0892]}
-                zoom={16}
-                className="w-full h-full"
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-                />
-                <MapClickHandler setMarkerPosition={setMarkerPosition} />
-                {markerPosition && (
-                  <Marker position={markerPosition}>
-                    <Popup>
-                      Pin dropped at: {markerPosition.lat.toFixed(4)},{" "}
-                      {markerPosition.lng.toFixed(4)}
-                    </Popup>
-                  </Marker>
-                )}
-                <MapResizeHandler trigger={isExpanded} />
-              </MapContainer>
+    
+          {/* Round Indicator (Top Right) */}
+          {images.length > 0 && (
+            <div className="absolute top-3 right-10 z-50 bg-[#E50000] text-white px-4 py-2 rounded-lg shadow-md font-bold">
+              <span className="rounded-full px-2 text-xs mb-1">Round</span><br />
+              <span className="text-white text-2xl font-bold">
+                {currentImageIndex + 1} / {images.length}
+              </span>
             </div>
-            {/* Guess Button */}
-            <button
-              onClick={handleGuess}
-              disabled={!canGuess}
-              className={`w-full px-6 py-2 rounded-lg shadow-md transition ${
-                canGuess
-                  ? "bg-[#D41B2C] text-white hover:bg-[#b31724] cursor-pointer"
-                  : "bg-gray-400 text-gray-700 cursor-not-allowed"
-              }`}
-            >
-              {exifLoading ? "Loading EXIF..." : "Guess"}
-            </button>
+          )}
+    
+          {/* Main Content */}
+          {images.length > 0 ? (
+            // Display the current image
+            <div className="relative w-full h-screen">
+              <Image
+                src={
+                  getSupabaseImageUrl(images[currentImageIndex].image_url) ||
+                  "/placeholder.svg"
+                }
+                alt="Campus location"
+                fill
+                unoptimized
+                className="object-contain"
+                priority
+              />
+            </div>
+          ) : (
+            <p className="text-white">Loading images...</p>
+          )}
+    
+          {/* Map & Guess Button Container */}
+          <div
+            ref={mapContainerRef}
+            className={`fixed bottom-8 right-8 rounded-lg overflow-hidden shadow-xl border border-gray-200 transition-all duration-300 ${
+              isExpanded ? "w-[50%] h-[50vh]" : "w-[200px] h-[150px]"
+            }`}
+            onMouseEnter={() => setIsExpanded(true)}
+          >
+            <div className="flex flex-col h-full">
+              {/* Map */}
+              <div className="flex-1 relative">
+                <MapContainer
+                  center={[42.3398, -71.0892]}
+                  zoom={16}
+                  className="w-full h-full"
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+                  />
+                  <MapClickHandler setMarkerPosition={setMarkerPosition} />
+                  {markerPosition && (
+                    <Marker position={markerPosition}>
+                      <Popup>
+                        Pin dropped at: {markerPosition.lat.toFixed(4)},{" "}
+                        {markerPosition.lng.toFixed(4)}
+                      </Popup>
+                    </Marker>
+                  )}
+                  <MapResizeHandler trigger={isExpanded} />
+                </MapContainer>
+              </div>
+              {/* Guess Button */}
+              <button
+                onClick={handleGuess}
+                disabled={!canGuess}
+                className={`w-full px-6 py-2 rounded-lg shadow-md transition ${
+                  canGuess
+                    ? "bg-[#D41B2C] text-white hover:bg-[#b31724] cursor-pointer"
+                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
+              >
+                {exifLoading ? "Loading EXIF..." : "Guess"}
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
-  )
+        </main>
+      </div>
+    );
+    
 }
