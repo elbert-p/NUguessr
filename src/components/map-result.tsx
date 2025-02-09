@@ -25,12 +25,12 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return Math.round(R * c)
+  return Math.round(R * c * 1760)
 }
 
 // Calculate points based on distance (max 5000 points at 0 distance)
 function calculatePoints(distance: number) {
-  const points = Math.max(0, Math.round(5000 * (1 - distance / 12450))) // 12450 is roughly half Earth's circumference in miles
+  const points = Math.max(0, Math.round(5000 * (1 - distance / 500))) // 12450 is roughly half Earth's circumference in miles
   return points
 }
 
@@ -79,11 +79,11 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
       <div className="text-3xl font-bold text-red-500">{points} points</div>
 
       <div className="w-full max-w-2xl">
-        <Progress value={(points / 5000) * 100} className="h-2 bg-red-500" />
+        <Progress value={(points / 5000) * 100} className="h-2 bg-red-200" />
       </div>
 
       <div className="text-lg italic text-gray-300">
-        Your guess was <span className="font-bold">{distance} miles</span> from the correct location.
+        Your guess was <span className="font-bold">{distance} yards</span> from the correct location.
           </div>
           <Button
       onClick={onNextRound}
