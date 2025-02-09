@@ -5,7 +5,6 @@ import "leaflet/dist/leaflet.css"
 import { Icon } from "leaflet" 
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { FlagIcon } from "lucide-react"
 
 interface MapResultProps {
   guessCoords: [number, number]
