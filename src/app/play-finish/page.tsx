@@ -71,12 +71,24 @@ export default function PlayFinishPage() {
     return [lats.reduce((a, b) => a + b, 0) / lats.length, lngs.reduce((a, b) => a + b, 0) / lngs.length]
   }, [locations])
 
+  // Calculate bounds to fit all markers
+  const mapBounds = useMemo(() => {
+    if (locations.length === 0) return undefined
+    const bounds = new L.LatLngBounds([])
+    locations.forEach((location) => {
+      bounds.extend(location.Guess)
+      bounds.extend(location.Actual)
+    })
+    // Add some padding to the bounds
+    return bounds.pad(0.2)
+  }, [locations])
+
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
       <main className="flex-1 container mx-auto px-4 flex flex-col items-center justify-between gap-4 py-4">
         <Card className="w-full shadow-xl">
           <CardContent className="p-0 relative h-[45vh]">
-            <MapContainer center={mapCenter} zoom={13} className="w-full h-full" scrollWheelZoom={false}>
+            <MapContainer center={mapCenter} bounds={mapBounds} className="w-full h-full" scrollWheelZoom={false}>
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
