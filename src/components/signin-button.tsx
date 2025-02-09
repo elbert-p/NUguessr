@@ -7,7 +7,7 @@ import { toast } from "@/hooks/use-toast"
 import { Icons } from "@/components/icons"
 import { useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { profileImage } from "./profile-image"
+import { ProfileImage } from "./profile-image"
  
 export function SignInButton() {
     const { user } = useUser()
@@ -61,7 +61,7 @@ export function SignInButton() {
         {isGoogleLoading ? (
           <Icons.loaderCircle className="mr-2 size-4 animate-spin" />
         ) : (
-          <div className="mr-2 outline bg-white rounded-full">{profileImage()}</div> 
+          <div className="mr-2 outline bg-white rounded-full">{ProfileImage()}</div> 
         )}{" "}
         {user?.email ? "Profile" : "Log in"}
       </Button>
