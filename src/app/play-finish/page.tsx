@@ -6,15 +6,25 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import dynamic from "next/dynamic"
 import "leaflet/dist/leaflet.css"
-import { RotateCcw, Home } from "lucide-react"
+import { RotateCcw } from "lucide-react"
 import { SignInButton } from "@/components/signin-button"
-import { useState, useMemo } from "react";
-import { useUser } from "../../../hooks/use-user"
+import { useMemo } from "react"
+import L from "leaflet"
+import { Popup } from "react-leaflet" // Import Popup from react-leaflet
+
+// Fix the default marker icon issue in Leaflet
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+})
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false })
 const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), { ssr: false })
 const Marker = dynamic(() => import("react-leaflet").then((mod) => mod.Marker), { ssr: false })
+const Polyline = dynamic(() => import("react-leaflet").then((mod) => mod.Polyline), { ssr: false })
 
 const MAX_POSSIBLE_SCORE = 25000 // Maximum possible score for reference
 
@@ -23,55 +33,85 @@ export default function PlayFinishPage() {
   const searchParams = useSearchParams()
   const totalScore = Number(searchParams.get("totalScore") || "0")
   const scorePercentage = (totalScore / MAX_POSSIBLE_SCORE) * 100
-  const { user } = useUser()
 
-  // Mock data for pin locations - replace with actual game data
-  const pinLocations = [
-    { lat: 42.3398, lng: -71.0892 }, // Boston
-    { lat: 48.8566, lng: 2.3522 }, // Paris
-    { lat: -23.5505, lng: -46.6333 }, // São Paulo
-    { lat: 41.9028, lng: 12.4964 }, // Rome
-  ]
+  // Parse the locations from the URL
+  const locations = useMemo(() => {
+    const locationsParam = searchParams.get("locations")
+    if (!locationsParam) return []
+    try {
+      return JSON.parse(decodeURIComponent(locationsParam))
+    } catch (error) {
+      console.error("Error parsing locations:", error)
+      return []
+    }
+  }, [searchParams])
 
-    // Generate a random link with 5 unique random numbers (between 1 and 55)
-    const randomLink = useMemo(() => {
-      // Create an array of numbers from 1 to 55.
-      const numbers = Array.from({ length: 55 }, (_, i) => i + 1);
-      // Shuffle the numbers using the Fisher-Yates algorithm.
-      for (let i = numbers.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
-      }
-      // Take the first 5 numbers and join them with a hyphen.
-      const fiveNumbers = numbers.slice(0, 5);
-      return `/play/${fiveNumbers.join("-")}`;
-    }, []);
+  // Generate a random link with 5 unique random numbers (between 1 and 55)
+  const randomLink = useMemo(() => {
+    // Create an array of numbers from 1 to 55
+    const numbers = Array.from({ length: 55 }, (_, i) => i + 1)
+
+    // Fisher-Yates shuffle with properly scoped variables
+    const shuffled = [...numbers]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const randomIndex = Math.floor(Math.random() * (i + 1))
+      // Swap elements using destructuring
+      ;[shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]]
+    }
+
+    // Take the first 5 numbers and join them with a hyphen
+    return `/play/${shuffled.slice(0, 5).join("-")}`
+  }, [])
+
+  // Calculate the center of all points for the map view
+  const mapCenter = useMemo(() => {
+    if (locations.length === 0) return [42.3398, -71.0892] // Default center (Boston)
+    const lats = locations.flatMap((loc) => [loc.Guess[0], loc.Actual[0]])
+    const lngs = locations.flatMap((loc) => [loc.Guess[1], loc.Actual[1]])
+    return [lats.reduce((a, b) => a + b, 0) / lats.length, lngs.reduce((a, b) => a + b, 0) / lngs.length]
+  }, [locations])
 
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
-      {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 flex flex-col items-center justify-between gap-4 py-4">
-        {/* Map Card */}
         <Card className="w-full shadow-xl">
           <CardContent className="p-0 relative h-[45vh]">
-            <MapContainer
-              center={[20, 0]} // Center the map to show most continents
-              zoom={2}
-              className="w-full h-full"
-              scrollWheelZoom={false}
-            >
+            <MapContainer center={mapCenter} zoom={13} className="w-full h-full" scrollWheelZoom={false}>
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-              {pinLocations.map((location, index) => (
-                <Marker key={index} position={[location.lat, location.lng]} />
+              {locations.map((location, index) => (
+                <div key={index}>
+                  {/* Guess marker */}
+                  <Marker position={location.Guess}>
+                    <Popup>Your guess #{index + 1}</Popup>
+                  </Marker>
+                  {/* Actual location marker */}
+                  <Marker
+                    position={location.Actual}
+                    icon={
+                      new L.Icon({
+                        iconUrl:
+                          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+                        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41],
+                      })
+                    }
+                  >
+                    <Popup>Actual location #{index + 1}</Popup>
+                  </Marker>
+                  {/* Line connecting guess to actual location */}
+                  <Polyline positions={[location.Guess, location.Actual]} color="black" weight={5} dashArray="5,10" />
+                </div>
               ))}
             </MapContainer>
           </CardContent>
         </Card>
 
-        {/* Game Finished Message and Score */}
         <div className="text-center space-y-4 w-full max-w-2xl">
           <h1 className="text-4xl font-bold text-primary">Game finished, well done!</h1>
           <p className="text-2xl text-muted-foreground">
@@ -84,12 +124,8 @@ export default function PlayFinishPage() {
             </div>
             <Progress value={scorePercentage} className="h-2" />
           </div>
-          <p className="text-4xl text-muted-foreground py-4">
-          {user?.email ? "" : "Log in to save your score!"}
-          </p>
         </div>
 
-        {/* Navigation Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
           <Button
             variant="outline"
@@ -99,7 +135,7 @@ export default function PlayFinishPage() {
             <RotateCcw className="mr-2 h-5 w-5" />
             Play Again
           </Button>
-          <SignInButton/>
+          <SignInButton />
         </div>
       </main>
     </div>
