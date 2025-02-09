@@ -2,10 +2,9 @@
 
 import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import { Icon } from "leaflet" 
+import { Icon } from "leaflet"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { FlagIcon } from "lucide-react"
 
 interface MapResultProps {
   guessCoords: [number, number]
@@ -26,16 +25,13 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return Math.round(R * c * 1760)
+  return Math.round(R * c)
 }
 
 // Calculate points based on distance (max 5000 points at 0 distance)
 function calculatePoints(distance: number) {
-  if (distance < 12) {
-    return 5000
-  } else {
-    return Math.max(0, Math.round(5000 * (1 - distance / 500)))
-  }
+  const points = Math.max(0, Math.round(5000 * (1 - distance / 12450))) // 12450 is roughly half Earth's circumference in miles
+  return points
 }
 
 export default function MapResult({ guessCoords, actualCoords, onNextRound, round }: MapResultProps) {
@@ -57,7 +53,8 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
     iconSize: [25, 41],
     iconAnchor: [12, 41],
   });
-
+  
+  
 
   // Compute bounds so both markers are visible
   const latMin = Math.min(guessCoords[0], actualCoords[0])
@@ -85,26 +82,26 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
           />
           <Marker position={guessCoords} icon={customIcon} />
           <Marker position={actualCoords} icon={flagIcon} />
-          <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#000000" weight={5} />
-          </MapContainer>
+          <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#ffffff" />
+        </MapContainer>
       </div>
 
       <div className="text-3xl font-bold text-red-500">{points} points</div>
 
       <div className="w-full max-w-2xl">
-        <Progress value={(points / 5000) * 100} className="h-2 bg-red-200" />
+        <Progress value={(points / 5000) * 100} className="h-2 bg-red-500" />
       </div>
 
       <div className="text-lg italic text-gray-300">
-        Your guess was <span className="font-bold">{distance} yards</span> from the correct location.
-          </div>
-          <Button
-      onClick={onNextRound}
-      className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
-    >
-      {round === 5 ? "VIEW RESULTS" : "START NEXT ROUND"}
-    </Button>
+        Your guess was <span className="font-bold">{distance} miles</span> from the correct location.
+      </div>
 
+      <Button
+        onClick={onNextRound}
+        className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+      >
+        START NEXT ROUND
+      </Button>
     </div>
   )
 }
