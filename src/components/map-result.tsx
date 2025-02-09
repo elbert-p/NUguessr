@@ -30,8 +30,11 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 // Calculate points based on distance (max 5000 points at 0 distance)
 function calculatePoints(distance: number) {
-  const points = Math.max(0, Math.round(5000 * (1 - distance / 500))) // 12450 is roughly half Earth's circumference in miles
-  return points
+  if (distance < 12) {
+    return 5000
+  } else {
+    return Math.max(0, Math.round(5000 * (1 - distance / 500)))
+  }
 }
 
 export default function MapResult({ guessCoords, actualCoords, onNextRound, round }: MapResultProps) {
