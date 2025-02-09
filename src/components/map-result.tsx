@@ -12,6 +12,7 @@ interface MapResultProps {
   onNextRound: () => void
   round: number
   timeout: boolean
+  notes: string
 }
 
 // Calculate distance between two points using the Haversine formula
@@ -41,7 +42,7 @@ function calculatePoints(distance: number, timeout: boolean) {
   }
 }
 
-export default function MapResult({ guessCoords, actualCoords, onNextRound, round, timeout }: MapResultProps) {
+export default function MapResult({ guessCoords, actualCoords, onNextRound, round, timeout, notes }: MapResultProps) {
   const distance = calculateDistance(guessCoords[0], guessCoords[1], actualCoords[0], actualCoords[1])
   const points = calculatePoints(distance, timeout)
 
@@ -76,20 +77,31 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
     <div className="flex flex-col items-center gap-6 p-4 min-h-screen bg-[#1a1b26] text-white">
       <h1 className="text-4xl font-bold">Round {round}</h1>
 
-      <div className="w-full max-w-4xl h-[400px] rounded-lg overflow-hidden">
-        <MapContainer
-          bounds={bounds}
-          boundsOptions={{ padding: [50, 50] }}
-          className="w-full h-full"
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={guessCoords} icon={customIcon} />
-          <Marker position={actualCoords} icon={flagIcon} />
-          <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#000000" weight={5} />
+      {/* Container for map and notes in a row */}
+      <div className="w-full max-w-4xl flex flex-row gap-4">
+        {/* Map Container */}
+        <div className="flex-1 flex justify-center items-center h-[400px] rounded-lg overflow-hidden">
+          <MapContainer
+            bounds={bounds}
+            boundsOptions={{ padding: [50, 50] }}
+            className="w-full h-full"
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <Marker position={guessCoords} icon={customIcon} />
+            <Marker position={actualCoords} icon={flagIcon} />
+            <Polyline positions={[guessCoords, actualCoords]} dashArray={[10, 10]} color="#000000" weight={5} />
           </MapContainer>
+        </div>
+
+        {/* Notes Container */}
+        {notes && (
+          <div className="flex-1 h-[400px] bg-white rounded-lg p-4 overflow-y-auto">
+            <p className="text-black text-2xl">{notes}</p>
+          </div>
+        )}
       </div>
 
       <div className="text-3xl font-bold text-red-500">{points} points</div>
@@ -99,15 +111,21 @@ export default function MapResult({ guessCoords, actualCoords, onNextRound, roun
       </div>
 
       <div className="text-lg italic text-gray-300">
-      {timeout ? "Time's up!" : <>Your guess was <span className="font-bold">{distance} yards</span> from the correct location.</>}
-          </div>
-          <Button
-      onClick={onNextRound}
-      className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
-    >
-      {round === 5 ? "VIEW RESULTS" : "START NEXT ROUND"}
-    </Button>
+        {timeout ? (
+          "Time's up!"
+        ) : (
+          <>
+            Your guess was <span className="font-bold">{distance} yards</span> from the correct location.
+          </>
+        )}
+      </div>
 
+      <Button
+        onClick={onNextRound}
+        className="mt-4 px-8 py-6 text-xl bg-red-500 hover:bg-red-600 text-white rounded-full font-bold shadow-lg transition-transform hover:scale-105"
+      >
+        {round === 5 ? "VIEW RESULTS" : "START NEXT ROUND"}
+      </Button>
     </div>
   )
 }
