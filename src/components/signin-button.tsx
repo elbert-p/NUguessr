@@ -51,18 +51,19 @@ export function SignInButton() {
     }
 
     return (
-        <Button 
-        className="text-white items-center bg-red-600 hover:bg-red-700 py-7 px-6 rounded-full text-2xl shadow-lg transition-all  hover:scale-105"
+      <Button 
+        className="text-white items-center bg-red-600 hover:bg-red-700 py-7 px-6 rounded-full text-2xl shadow-lg transition-all hover:scale-105"
         type="button"
         onClick={handleButtonClick}
         disabled={isGoogleLoading}
-        >
-          {isGoogleLoading ? (
-            <Icons.loaderCircle className="mr-2 size-4 animate-spin" />
-          ) : (
-          profileImage()
-          )}{" "}
-          {user?.email ? "Profile" : "Log in"}
-          </Button>
+        style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }} 
+      >
+        {isGoogleLoading ? (
+          <Icons.loaderCircle className="mr-2 size-4 animate-spin" />
+        ) : (
+          <div className="mr-2 outline bg-white rounded-full">{profileImage()}</div> 
+        )}{" "}
+        {user?.email ? "Profile" : "Log in"}
+      </Button>
       )
 }

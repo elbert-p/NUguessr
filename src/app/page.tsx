@@ -56,7 +56,7 @@ export default function HomePage() {
       </div>
 
       <main className="text-center z-10 relative px-6 py-8 w-full max-w-4xl mx-auto mt-4 bg-gray-800/60 rounded-xl backdrop-blur-[2px]">
-        <div className="space-y-4 mb-8">
+        <div className="space-y-4 mb-4">
           <p
             className="text-5xl font-[1000] text-white"
             style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}

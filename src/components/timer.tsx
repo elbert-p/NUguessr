@@ -32,15 +32,15 @@ export default function Timer({ seconds, onComplete, className }: TimerProps) {
   const formattedTime = `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`
 
   return (
-    <div
-      className={cn(
-        "bg-black/90 text-white px-6 py-2 rounded-full text-2xl font-mono tracking-wider",
-        "shadow-[0_0_20px_rgba(147,51,234,0.5)] border border-red-600",
-        className,
-      )}
-    >
-      {formattedTime}
-    </div>
+  <div
+    className={cn(
+      "bg-black/90 text-white px-6 py-2 rounded-full text-2xl font-mono tracking-wider",
+      "shadow-[0_0_40px_rgba(220,38,38,0.5)] border-2 border-red-600",
+      className,
+    )}
+  >
+    {formattedTime}
+  </div>
   )
 }
 

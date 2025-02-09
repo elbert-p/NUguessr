@@ -11,13 +11,14 @@ export const profileImage = () => {
         <img
             src={user?.user_metadata.avatar_url}
             alt="Profile image"
-            className="w-8 h-8 mr-2 rounded-full"
+            className="w-8 h-8 rounded-full"
         />
         )
     }
     else {
         return (
-        <Icons.google className="mr-2 size-6" />
-        )
+            <Icons.google style={{ width: "32px", height: "32px" }} />
+          );
+          
     }
 }

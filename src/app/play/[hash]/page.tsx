@@ -255,7 +255,7 @@ export default function PlayPage() {
         <main className="h-screen relative">
           {/* Timer Overlapping the Image */}
           <div className="absolute top-12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded-lg">
-            <Timer seconds={10} onComplete={handleTimeout} />
+            <Timer seconds={30} onComplete={handleTimeout} />
           </div>
     
           {/* Round Indicator (Top Right) */}
@@ -292,7 +292,7 @@ export default function PlayPage() {
           <div
             ref={mapContainerRef}
             className={`fixed bottom-8 right-8 rounded-lg overflow-hidden shadow-xl border border-gray-200 transition-all duration-300 ${
-              isExpanded ? "w-[50%] h-[50vh]" : "w-[200px] h-[150px]"
+              isExpanded ? "w-[50%] h-[50vh]" : "w-[300px] h-[200px]"
             }`}
             onMouseEnter={() => setIsExpanded(true)}
           >
@@ -324,10 +324,10 @@ export default function PlayPage() {
               <button
                 onClick={handleGuess}
                 disabled={!canGuess}
-                className={`w-full px-6 py-2 rounded-lg shadow-md transition ${
+                className={`w-full px-6 py-2 rounded-lg shadow-md transition font-black ${
                   canGuess
-                    ? "bg-[#D41B2C] text-white hover:bg-[#b31724] cursor-pointer"
-                    : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    ? "bg-[#D41B2C] text-white text-xl hover:bg-[#b31724] cursor-pointer"
+                    : "bg-gray-400 text-gray-700 text-xl cursor-not-allowed"
                 }`}
               >
                 {exifLoading ? "Loading EXIF..." : "Guess"}
