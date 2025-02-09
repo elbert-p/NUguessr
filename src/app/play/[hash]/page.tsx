@@ -2,7 +2,7 @@
 
 import L from "leaflet"
 // Fix the default marker icon issue in Leaflet:
-delete L.Icon.Default.prototype._getIconUrl
+delete (L.Icon.Default.prototype as any)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
@@ -111,7 +111,7 @@ export default function PlayPage() {
   const idArray: number[] = useMemo(() => {
     if (!id) return []
     console.log("Raw id:", id)
-    const arr = id.split("-").map((idStr) => Number.parseInt(idStr, 10))
+    const arr = (id as string).split("-").map((idStr: string) => Number.parseInt(idStr, 10))
     console.log("Parsed idArray:", arr)
     return arr
   }, [id])
@@ -292,7 +292,7 @@ export default function PlayPage() {
   // If the user has made a guess and the current image's EXIF data is available,
   // render the MapResult component.
   if (showResult && markerPosition && exifCoords) {
-    const guessCoords = [markerPosition.lat, markerPosition.lng]
+    const guessCoords: [number, number] = [markerPosition.lat, markerPosition.lng]
     locationArray.push({ Guess: guessCoords, Actual: exifCoords })
     return (
       <MapResult
@@ -302,6 +302,9 @@ export default function PlayPage() {
         round={currentImageIndex + 1}
         timeout={timeout}
         notes={images[currentImageIndex].notes}  // <-- Updated: Passing the fetched note here.
+        onRoundComplete={(points: number) => {
+          console.log(`Round completed with ${points} points`)
+        }}
       />
     )
   }
